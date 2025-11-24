@@ -1,0 +1,36 @@
+<app-alert [message]="alertMessage" [show]="alertShow"></app-alert>
+
+<div class="roles-container">
+  <div class="actions">
+    <button (click)="addRole()">+ Nuevo Rol</button>
+    <button (click)="openSearch()">🔍 Buscar</button>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Activo</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let role of roles">
+          <td>{{ role.name || '—' }}</td>
+          <td>{{ role.description || 'Sin descripción' }}</td>
+          <td>
+            <span [class.active]="role.isActive" [class.inactive]="!role.isActive">
+              {{ role.isActive ? 'Sí' : 'No' }}
+            </span>
+          </td>
+          <td>
+            <button (click)="editRole(role)">✎</button>
+            <button (click)="deleteRole(role.id)">🗑</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

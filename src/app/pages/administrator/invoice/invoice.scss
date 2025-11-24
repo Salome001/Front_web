@@ -1,0 +1,241 @@
+/* invoice.scss */
+
+/* Contenedor principal */
+.invoice-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  font-family: 'Arial', sans-serif;
+  background: #1f1f2a;
+  color: white;
+  border-radius: 12px;
+}
+.big-fab {
+  width: 60px;
+  height: 60px;
+  font-size: 20px;
+}
+
+/* Título */
+.invoice-container h2,
+.invoice-container h3 {
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+/* Botones superiores */
+.top-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.top-buttons button {
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: none;
+  background: #1976d2;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.delete-button {
+  background-color: white !important;  // Fondo blanco
+  color: black !important;             // Icono negro
+  border-radius: 6px;                  // Bordes redondeados
+  transition: 0.2s;
+}
+
+.top-buttons button:hover {
+  background: #1565c0;
+}
+
+/* Formulario de factura */
+.invoice-form {
+  background: #27273a;
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Secciones de búsqueda */
+.search-section {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* Cliente y Producto */
+.client-section,
+.product-section {
+  flex: 1 1 45%;
+  background: #1f1f2a;
+  padding: 16px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Inputs de búsqueda */
+mat-form-field {
+  width: 100%;
+}
+
+.autocomplete-list {
+  max-height: 180px;
+  overflow-y: auto;
+  background: #2a2a3d;
+  border-radius: 8px;
+}
+
+.autocomplete-list div {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.autocomplete-list div:hover {
+  background: #1976d2;
+  color: white;
+}
+
+/* Información cliente/producto */
+.client-info p,
+.product-info p {
+  margin: 4px 0;
+}
+
+.client-info p b,
+.product-info p b {
+  color: #ffffff;
+}
+
+/* Botón de agregar producto */
+.quantity-buttons button {
+  font-weight: bold;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.quantity-buttons button:hover {
+  background: #1565c0;
+}
+
+/* Tabla principal y de detalles */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  background: #1f1f2a;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: white;
+}
+
+thead tr {
+  background: #27273a;
+}
+
+th,
+td {
+  padding: 14px 16px;
+  text-align: left;
+}
+
+tbody tr:hover {
+  background-color: #2a2a3d;
+}
+
+/* Inputs de cantidad en la tabla */
+input[type="number"] {
+  width: 50px;
+  text-align: center;
+  margin: 0 5px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  color: black;
+}
+
+/* Botones de acciones en tablas */
+.actions button,
+td button {
+  cursor: pointer;
+  padding: 6px;
+  color: black;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.actions button:hover,
+td button:hover {
+  opacity: 0.8;
+}
+
+/* Totales */
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Botón guardar factura */
+.invoice-form button {
+  align-self: flex-end;
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: none;
+  background: #1976d2;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.invoice-form button:hover {
+  background: #1565c0;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .invoice-container {
+    padding: 16px;
+  }
+
+  th,
+  td {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .top-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .search-section {
+    flex-direction: column;
+  }
+
+  .client-section,
+  .product-section {
+    flex: 1 1 100%;
+  }
+}

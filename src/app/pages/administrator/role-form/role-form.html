@@ -1,0 +1,30 @@
+<app-alert [message]="alertMessage" [show]="alertShow"></app-alert>
+
+<div class="role-wrapper">
+  <div class="role-card">
+    <h2>{{ role.id ? 'Editar Rol' : 'Nuevo Rol' }}</h2>
+
+    <div class="input-group" [class.error]="errors.name">
+      <label for="roleName">Nombre del Rol</label>
+      <input id="roleName" type="text" [(ngModel)]="role.name" name="name" placeholder="Ingrese el nombre del rol" />
+      <small>{{ errors.name }}</small>
+    </div>
+
+    <div class="input-group">
+      <label for="roleDesc">Descripción</label>
+      <input id="roleDesc" type="text" [(ngModel)]="role.description" name="description" placeholder="Opcional" />
+    </div>
+
+    <div class="checkbox-group">
+      <input id="roleActive" type="checkbox" [(ngModel)]="role.isActive" name="isActive" />
+      <label for="roleActive">Activo</label>
+    </div>
+
+    <hr />
+
+    <div class="buttons">
+      <button class="btn primary" (click)="save()">{{ role.id ? 'Actualizar' : 'Guardar' }}</button>
+      <button class="btn warn" (click)="close()">Cancelar</button>
+    </div>
+  </div>
+</div>

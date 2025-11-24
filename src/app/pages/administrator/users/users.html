@@ -1,0 +1,55 @@
+<div class="users-container">
+
+  <div class="actions">
+    <button (click)="addUser()">+ Nuevo Usuario</button>
+    <button (click)="openSearch()">🔍 Buscar</button>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Identificación</th>
+          <th>Bloqueado</th>
+          <th>Usuario</th>
+          <th>Email</th>
+          <th>Email Confirmado</th>
+          <th>Contraseña</th>
+          <th>Roles</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.identificationNumber }}</td>
+          <td>
+            <span [class.locked]="user.isLocked" [class.unlocked]="!user.isLocked">
+              {{ user.isLocked ? 'Sí' : 'No' }}
+            </span>
+          </td>
+          <td>{{ user.userName }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <span [class.active]="user.emailConfirmed" [class.inactive]="!user.emailConfirmed">
+              {{ user.emailConfirmed ? 'Sí' : 'No' }}
+            </span>
+          </td>
+          <td>••••••••</td>
+        
+          <td>
+          <span *ngIf="user.roles.length; else noRoles">
+              {{ user.roles.join(', ') }}
+            </span>
+            <ng-template #noRoles>Sin roles</ng-template>
+          </td>
+          <td>
+            <button (click)="editUser(user)">✎</button>
+            <button (click)="deleteUser(user.id)">🗑</button>
+            <button *ngIf="user.isLocked" (click)="unlockUser(user.id)">🔓</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

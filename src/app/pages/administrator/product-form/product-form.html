@@ -1,0 +1,63 @@
+<app-alert [message]="alertMessage" [show]="alertShow"></app-alert>
+
+<div class="product-wrapper">
+  <div class="product-card">
+
+    <h2>{{ product.productId ? 'Editar Producto' : 'Nuevo Producto' }}</h2>
+
+    <div class="form-scroll">
+
+      <div class="input-group" [class.error]="errors.code">
+        <label for="productCode">Código</label>
+        <input id="productCode" type="text" [(ngModel)]="product.code" placeholder="Código del producto" />
+        <small>{{ errors.code }}</small>
+      </div>
+
+      <div class="input-group" [class.error]="errors.name">
+        <label for="productName">Nombre</label>
+        <input id="productName" type="text" [(ngModel)]="product.name" placeholder="Nombre del producto" />
+        <small>{{ errors.name }}</small>
+      </div>
+
+      <div class="input-group" [class.error]="errors.price">
+        <label for="productPrice">Precio</label>
+        <input id="productPrice" type="number" [(ngModel)]="product.price" placeholder="0.00" />
+        <small>{{ errors.price }}</small>
+      </div>
+
+      <div class="input-group">
+        <label for="productDesc">Descripción</label>
+        <input id="productDesc" type="text" [(ngModel)]="product.description" placeholder="Opcional" />
+      </div>
+
+      <div class="input-group" [class.error]="errors.stock">
+        <label for="productStock">Stock</label>
+        <input id="productStock" type="number" [(ngModel)]="product.stock" placeholder="0" />
+        <small>{{ errors.stock }}</small>
+      </div>
+
+      <div class="checkbox-group">
+        <input id="productActive" type="checkbox" [(ngModel)]="product.isActive" />
+        <label for="productActive">Activo</label>
+      </div>
+
+      <div class="input-group">
+        <label for="productImage">Imagen</label>
+        <input id="productImage" type="file" (change)="onFileSelected($event)" />
+      </div>
+
+      <div class="image-preview" *ngIf="selectedFile || product.imageUri">
+        <img [src]="selectedFile ? filePreview : product.imageUri" alt="Imagen del producto" />
+      </div>
+
+    </div>
+
+    <hr />
+
+    <div class="buttons">
+      <button class="btn primary" (click)="save()">{{ product.productId ? 'Actualizar' : 'Guardar' }}</button>
+      <button class="btn warn" (click)="close()">Cancelar</button>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,447 @@
+Crear componentes
+    ng generate component pages/administrator/InvoiceDetailModalComponent
+Crear servicio
+    ng generate service services/auth
+
+
+-----------------
+import { Component, OnInit } from '@angular/core';
+import { InvoiceDto, InvoiceDetailDto, ProductDto, ClientDto } from '../../../models/invoice.dto';
+import { InvoiceService } from '../../../services/invoice.service';
+import { ClienteService } from '../../../services/client.service';
+import { ProductService } from '../../../services/product.service';
+import { MatTableDataSource } from '@angular/material/table';
+import { FormControl } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { Observable, of } from 'rxjs';
+import { debounceTime, switchMap, map } from 'rxjs/operators';
+import { UserService } from '../../../services/user.service';
+
+@Component({
+  selector: 'app-invoice',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule
+  ],
+  templateUrl: './invoice.html',
+  styleUrls: ['./invoice.scss']
+})
+export class InvoiceComponent implements OnInit {
+  invoices: InvoiceDto[] = [];
+  dataSource = new MatTableDataSource<InvoiceDto>();
+  displayedColumns: string[] = ['invoiceNumber','clientName','issueDate','subtotal','tax','total','actions'];
+
+  currentInvoice: InvoiceDto = {
+    invoiceDetails: [],
+    subtotal: 0,
+    tax: 0,
+    total: 0
+  };
+
+  clientSearch = new FormControl('');
+  productSearch = new FormControl('');
+  observations = new FormControl('');
+
+  filteredClients: ClientDto[] = [];
+  filteredProducts: ProductDto[] = [];
+
+  selectedClient: ClientDto | null = null;
+  selectedProduct: ProductDto | null = null;
+
+  constructor(
+    private invoiceService: InvoiceService,
+    private clientService: ClienteService,
+    private productService: ProductService,
+    private userService: UserService,
+
+  ) {}
+
+ngOnInit() {
+  this.loadInvoices();
+
+  // Autocompletado cliente en tiempo real
+  this.clientSearch.valueChanges.pipe(
+    debounceTime(200), // 200ms de espera para no saturar la búsqueda
+    switchMap(val => val ? this.searchClients(val) : of([]))
+  ).subscribe(res => this.filteredClients = res);
+
+  // Autocompletado producto en tiempo real
+  this.productSearch.valueChanges.pipe(
+    debounceTime(200),
+    switchMap(val => val ? this.searchProducts(val) : of([]))
+  ).subscribe(res => this.filteredProducts = res);
+}
+
+  loadInvoices() {
+    this.invoiceService.getAll(1, 100, '').subscribe(res => {
+      this.invoices = res;
+      this.dataSource.data = res;
+    });
+  }
+
+searchClients(term: string): Observable<ClientDto[]> {
+  return this.clientService.getAll().pipe(
+    map(res => res.items.filter(c =>
+      (c.firstName + ' ' + c.lastName).toLowerCase().includes(term.toLowerCase()) ||
+      c.identificationNumber.includes(term)
+    ))
+  );
+}
+searchProducts(term: string): Observable<ProductDto[]> {
+  return this.productService.getAll().pipe(
+    map(res => res.filter(p =>
+      p.name.toLowerCase().includes(term.toLowerCase()) ||
+      p.code.toLowerCase().includes(term.toLowerCase())
+    ))
+  );
+}
+
+selectClient(client: ClientDto) {
+  this.selectedClient = client;
+  this.currentInvoice.clientId = client.clientId;
+  this.clientSearch.setValue(`${client.firstName} ${client.lastName}`, { emitEvent: false });
+  this.filteredClients = []; // ocultar lista de autocompletado
+}
+
+// Selección de producto con un solo clic
+selectProduct(product: ProductDto) {
+  this.selectedProduct = product;
+  this.productSearch.setValue(product.name, { emitEvent: false });
+  this.filteredProducts = []; // ocultar lista de autocompletado
+}
+addProductToInvoice(product: ProductDto) {
+  if (!product.isActive || product.stock <= 0) return;
+
+  let existing = this.currentInvoice.invoiceDetails.find(d => d.productId === product.productId);
+  if (existing) {
+    if (existing.quantity + 1 <= product.stock) {
+      existing.quantity++;
+      existing.subtotal = existing.quantity * existing.unitPrice;
+    }
+  } else {
+    this.currentInvoice.invoiceDetails.push({
+      productId: product.productId,
+      product: product,
+      quantity: 1,
+      unitPrice: product.price,
+      subtotal: product.price
+    });
+  }
+
+  this.calculateTotals();
+  this.refreshTable();
+}
+
+refreshTable() {
+  this.currentInvoice.invoiceDetails = [...this.currentInvoice.invoiceDetails];
+}
+
+  removeProduct(detail: InvoiceDetailDto) {
+    this.currentInvoice.invoiceDetails = this.currentInvoice.invoiceDetails.filter(d => d.productId !== detail.productId);
+    this.calculateTotals();
+  }
+
+  increaseQuantity(detail: InvoiceDetailDto) {
+    if (detail.quantity < (detail.product?.stock || 0)) {
+      detail.quantity++;
+      detail.subtotal = detail.quantity * detail.unitPrice;
+      this.calculateTotals();
+    }
+  }
+
+  decreaseQuantity(detail: InvoiceDetailDto) {
+    if (detail.quantity > 1) {
+      detail.quantity--;
+      detail.subtotal = detail.quantity * detail.unitPrice;
+      this.calculateTotals();
+    }
+  }
+
+  updateQuantity(detail: InvoiceDetailDto, quantity: number) {
+    if (quantity < 1 || quantity > (detail.product?.stock || 0)) return;
+    detail.quantity = quantity;
+    detail.subtotal = detail.quantity * detail.unitPrice;
+    this.calculateTotals();
+  }
+
+  calculateTotals() {
+    this.currentInvoice.subtotal = this.currentInvoice.invoiceDetails.reduce((a,b) => a + b.subtotal, 0);
+    this.currentInvoice.tax = this.currentInvoice.subtotal * 0.12;
+    this.currentInvoice.total = this.currentInvoice.subtotal + this.currentInvoice.tax;
+  }
+
+saveInvoice() {
+  if (!this.currentInvoice.clientId || this.currentInvoice.invoiceDetails.length === 0) return;
+
+  // Llamar al servicio para obtener el usuario actual
+  this.userService.getCurrentUser().subscribe({
+    next: (user) => {
+      const invoiceToSend = {
+        invoiceNumber: `FA-${new Date().toISOString().replace(/[-:.TZ]/g,'')}`, // único
+        clientId: this.currentInvoice.clientId,
+        userId: user.id,  // <-- tomamos el ID directamente
+        issueDate: new Date().toISOString(),
+        observations: this.observations.value || '',
+        invoiceDetails: this.currentInvoice.invoiceDetails.map(d => ({
+          productId: d.productId,
+          quantity: d.quantity,
+          unitPrice: d.unitPrice
+        }))
+      };
+
+      console.log('Factura a enviar:', invoiceToSend);
+
+      this.invoiceService.create(invoiceToSend).subscribe({
+        next: () => {
+          this.loadInvoices();
+          this.currentInvoice = { invoiceDetails: [], subtotal: 0, tax: 0, total: 0 };
+          this.selectedClient = null;
+          this.selectedProduct = null;
+          this.clientSearch.reset();
+          this.productSearch.reset();
+          this.observations.reset();
+        },
+        error: err => console.error('Error al guardar factura:', err)
+      });
+    },
+    error: (err) => {
+      console.error('No se pudo obtener el usuario actual', err);
+    }
+  });
+}
+
+
+  deleteInvoice(id: number) {
+    this.invoiceService.delete(id).subscribe(() => this.loadInvoices());
+  }
+}
+----------------------------------------------------------------------
+<div class="invoice-container">
+
+  <h2>Facturas</h2>
+
+  <div class="invoice-form">
+    <div class="search-section">
+      
+      <!-- Cliente -->
+      <div class="client-section">
+        <mat-form-field appearance="fill">
+          <mat-label>Buscar Cliente</mat-label>
+          <input matInput [formControl]="clientSearch">
+        </mat-form-field>
+
+        <div class="autocomplete-list" *ngIf="filteredClients.length">
+          <div *ngFor="let client of filteredClients" (click)="selectClient(client)">
+            {{client.firstName}} {{client.lastName}} - {{client.identificationNumber}}
+          </div>
+        </div>
+
+        <div *ngIf="selectedClient" class="client-info">
+          <p><b>ID Cliente:</b> {{selectedClient.clientId}}</p>
+          <p><b>Nombre:</b> {{selectedClient.firstName}} {{selectedClient.lastName}}</p>
+          <p><b>Tipo de ID:</b> {{selectedClient.identificationType}}</p>
+          <p><b>Número de ID:</b> {{selectedClient.identificationNumber}}</p>
+          <p><b>Teléfono:</b> {{selectedClient.phone}}</p>
+          <p><b>Email:</b> {{selectedClient.email}}</p>
+          <p><b>Dirección:</b> {{selectedClient.address}}</p>
+        </div>
+      </div>
+
+      <!-- Producto -->
+      <div class="product-section">
+        <mat-form-field appearance="fill">
+          <mat-label>Buscar Producto</mat-label>
+          <input matInput [formControl]="productSearch">
+        </mat-form-field>
+
+        <div class="autocomplete-list" *ngIf="filteredProducts.length">
+          <div *ngFor="let product of filteredProducts" (click)="selectProduct(product)">
+            {{product.name}} - {{product.price | currency}} - Stock: {{product.stock}} - {{product.isActive ? 'Activo' : 'Inactivo'}}
+          </div>
+        </div>
+
+        <div *ngIf="selectedProduct" class="product-info">
+          <p><b>Nombre:</b> {{selectedProduct.name}}</p>
+          <p><b>Precio:</b> {{selectedProduct.price | currency}}</p>
+          <p><b>Stock:</b> {{selectedProduct.stock}}</p>
+          <p><b>Activo:</b> {{selectedProduct.isActive ? 'Sí' : 'No'}}</p>
+
+          <div class="quantity-buttons">
+         <button mat-mini-fab color="primary" class="big-fab" (click)="addProductToInvoice(selectedProduct)">
+  +
+</button>
+
+          </div>
+        </div>
+      </div>
+<mat-form-field appearance="fill" class="observations-field">
+  <mat-label>Observaciones</mat-label>
+  <textarea matInput [formControl]="observations" rows="3"></textarea>
+</mat-form-field>
+
+    </div>
+
+    <!-- Tabla de detalles -->
+    <div class="table-wrapper">
+      <table mat-table [dataSource]="currentInvoice.invoiceDetails" class="mat-elevation-z8">
+
+        <ng-container matColumnDef="productName">
+          <th mat-header-cell *matHeaderCellDef> Producto </th>
+          <td mat-cell *matCellDef="let d"> {{d.product.name}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="quantity">
+          <th mat-header-cell *matHeaderCellDef> Cantidad </th>
+          <td mat-cell *matCellDef="let d">
+            <button mat-mini-fab color="accent" (click)="decreaseQuantity(d)">-</button>
+            <input type="number" [ngModel]="d.quantity" (ngModelChange)="updateQuantity(d,$event)" min="1">
+            <button mat-mini-fab color="accent" (click)="increaseQuantity(d)">+</button>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="subtotal">
+          <th mat-header-cell *matHeaderCellDef> Subtotal </th>
+          <td mat-cell *matCellDef="let d"> {{d.subtotal | currency}} </td>
+        </ng-container>
+
+     <ng-container matColumnDef="actions">
+  <th mat-header-cell *matHeaderCellDef> Acciones </th>
+  <td mat-cell *matCellDef="let d">
+    <button mat-mini-fab class="delete-button" (click)="removeProduct(d)">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </td>
+</ng-container>
+
+
+        <tr mat-header-row *matHeaderRowDef="['productName','quantity','subtotal','actions']"></tr>
+        <tr mat-row *matRowDef="let row; columns:['productName','quantity','subtotal','actions'];"></tr>
+      </table>
+    </div>
+
+    <div class="totals">
+      <p><b>Subtotal:</b> {{ currentInvoice.subtotal | currency }}</p>
+      <p><b>IVA (12%):</b> {{ currentInvoice.tax | currency }}</p>
+      <p><b>Total:</b> {{ currentInvoice.total | currency }}</p>
+    </div>
+
+    <button mat-raised-button color="primary" (click)="saveInvoice()">Guardar Factura</button>
+  </div>
+    <div class="top-buttons">
+    <button mat-raised-button color="primary" (click)="loadInvoices()">Buscar Factura</button>
+  </div>
+
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+      <ng-container matColumnDef="invoiceNumber">
+        <th mat-header-cell *matHeaderCellDef> Número </th>
+        <td mat-cell *matCellDef="let i"> {{i.invoiceNumber}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="clientName">
+        <th mat-header-cell *matHeaderCellDef> Cliente </th>
+        <td mat-cell *matCellDef="let i"> {{i.client?.firstName}} {{i.client?.lastName}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="issueDate">
+        <th mat-header-cell *matHeaderCellDef> Fecha </th>
+        <td mat-cell *matCellDef="let i"> {{i.issueDate | date}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="subtotal">
+        <th mat-header-cell *matHeaderCellDef> Subtotal </th>
+        <td mat-cell *matCellDef="let i"> {{i.subtotal | currency}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="tax">
+        <th mat-header-cell *matHeaderCellDef> IVA </th>
+        <td mat-cell *matCellDef="let i"> {{i.tax | currency}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef> Total </th>
+        <td mat-cell *matCellDef="let i"> {{i.total | currency}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> Acciones </th>
+        <td mat-cell *matCellDef="let i">
+          <button mat-icon-button color="warn" (click)="deleteInvoice(i.invoiceId)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+
+
+
+</div>
+-------------------------------------------------------
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { environment } from '../environments/environments';
+import { Observable } from 'rxjs';
+import { InvoiceDto, InvoiceDetailDto } from '../models/invoice.dto';
+
+@Injectable({ providedIn: 'root' })
+export class InvoiceService {
+  private url = `${environment.baseUrl}/Invoice`;
+
+  constructor(private http: HttpClient) {}
+
+  private getAuthHeaders(): HttpHeaders {
+    const token = sessionStorage.getItem('token') || '';
+    return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+  }
+
+  getAll(page: number = 1, pageSize: number = 10, searchTerm: string = ''): Observable<InvoiceDto[]> {
+    let params = new HttpParams()
+      .set('pageNumber', page)
+      .set('pageSize', pageSize)
+      .set('searchTerm', searchTerm);
+    return this.http.get<InvoiceDto[]>(this.url, { headers: this.getAuthHeaders(), params });
+  }
+
+  getById(id: number): Observable<InvoiceDto> {
+    return this.http.get<InvoiceDto>(`${this.url}/${id}`, { headers: this.getAuthHeaders() });
+  }
+
+create(invoice: any): Observable<void> {
+  return this.http.post<void>(this.url, invoice, { headers: this.getAuthHeaders() });
+}
+
+
+  update(id: number, invoice: InvoiceDto): Observable<void> {
+    return this.http.put<void>(`${this.url}/${id}`, invoice, { headers: this.getAuthHeaders() });
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${id}`, { headers: this.getAuthHeaders() });
+  }
+
+  addProduct(invoiceId: number, detail: InvoiceDetailDto): Observable<void> {
+    return this.http.post<void>(`${this.url}/${invoiceId}/add-product`, detail, { headers: this.getAuthHeaders() });
+  }
+
+  removeProduct(invoiceId: number, productId: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${invoiceId}/remove-product/${productId}`, { headers: this.getAuthHeaders() });
+  }
+}

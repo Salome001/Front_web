@@ -1,0 +1,48 @@
+<div class="video-container">
+  <video #bgVideo autoplay muted loop playsinline class="bg-video">
+    <source src="/assets/videos/background.mp4" type="video/mp4">
+  </video>
+  <div class="video-overlay"></div>
+</div>
+
+<ng-container >
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav #sidenav mode="side" opened class="sidenav">
+      <h3>Panel Administrativo</h3>
+      <mat-nav-list>
+        <!-- Estas secciones siempre visibles -->
+         <a mat-list-item routerLink="facturas">
+          <mat-icon>receipt_long</mat-icon> <span>Facturas</span>
+        </a>
+        <a mat-list-item routerLink="clientes">
+          <mat-icon>people</mat-icon> <span>Clientes</span>
+        </a>
+        <a  mat-list-item routerLink="usuarios">
+          <mat-icon>manage_accounts</mat-icon> <span>Usuarios</span>
+        </a>
+        <a mat-list-item routerLink="productos">
+          <mat-icon>inventory_2</mat-icon> <span>Productos</span>
+        </a>
+
+        <!-- Solo admins -->
+        <a  mat-list-item routerLink="roles">
+          <mat-icon>security</mat-icon> <span>Roles</span>
+        </a>
+        
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <mat-toolbar>
+        <button mat-icon-button (click)="sidenav.toggle()" class="menu-button">
+          <mat-icon>menu</mat-icon>
+        </button>
+        Bienvenido, <strong>{{ username }}</strong>
+      </mat-toolbar>
+
+      <div class="content">
+        <router-outlet></router-outlet>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</ng-container>

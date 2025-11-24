@@ -1,0 +1,78 @@
+.clients-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  font-family: 'Arial', sans-serif;
+}
+
+.top-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.top-buttons button {
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: none;
+  background: #1976d2;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.top-buttons button:hover {
+  background: #1565c0;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #1f1f2a;
+  color: white;
+}
+
+thead tr {
+  background: #27273a;
+}
+
+th, td {
+  padding: 14px 16px;
+  text-align: left;
+  color: white;
+}
+
+tbody tr:hover {
+  background-color: #2a2a3d;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+}
+
+.actions button {
+  cursor: pointer;
+  padding: 6px;
+  color: black;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.actions button:hover {
+  opacity: 0.8;
+}
+
+@media (max-width:768px) {
+  .clients-container { padding: 16px; }
+  th, td { padding: 10px 12px; font-size: 13px; }
+  .top-buttons { flex-direction: column; gap: 8px; }
+}

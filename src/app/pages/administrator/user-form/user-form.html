@@ -1,0 +1,84 @@
+<app-alert [message]="alertMessage" [show]="alertShow"></app-alert>
+
+<div class="cliente-wrapper">
+  <div class="cliente-card">
+
+    <h2>{{ user.id ? 'Editar Usuario' : 'Nuevo Usuario' }}</h2>
+
+    <div class="form-scroll">
+
+      <div class="input-group" [class.error]="errors.identificationNumber">
+        <label>Cédula</label>
+        <input [(ngModel)]="user.identificationNumber" maxlength="10" (input)="soloNumeros($event)" />
+        <small>{{ errors.identificationNumber }}</small>
+      </div>
+
+      <div class="input-group" [class.error]="errors.email">
+        <label>Correo</label>
+        <input [(ngModel)]="user.email" />
+        <small>{{ errors.email }}</small>
+      </div>
+
+      <div class="input-group" [class.error]="errors.userName">
+        <label>Usuario</label>
+        <input [(ngModel)]="user.userName" />
+        <small>{{ errors.userName }}</small>
+      </div>
+
+      <div class="input-group" *ngIf="!isEditMode" [class.error]="errors.password">
+        <label>Contraseña</label>
+        <input type="password" [(ngModel)]="user.password" />
+        <small>{{ errors.password }}</small>
+      </div>
+
+      <div class="input-group" *ngIf="isEditMode" [class.error]="errors.currentPassword">
+        <label>Contraseña actual</label>
+        <input type="password" [(ngModel)]="user.currentPassword" />
+        <small>{{ errors.currentPassword }}</small>
+      </div>
+
+      <div class="input-group" *ngIf="isEditMode" [class.error]="errors.newPassword">
+        <label>Nueva contraseña</label>
+        <input type="password" [(ngModel)]="user.newPassword" />
+        <small>{{ errors.newPassword }}</small>
+      </div>
+
+      <div class="input-group" *ngIf="isEditMode" [class.error]="errors.confirmNewPassword">
+        <label>Confirmar nueva contraseña</label>
+        <input type="password" [(ngModel)]="user.confirmNewPassword" />
+        <small>{{ errors.confirmNewPassword }}</small>
+      </div>
+      <div class="input-group" [class.error]="errors.roles">
+        <label>Rol</label>
+        <select [(ngModel)]="user.roles" class="combo-select">
+          <option value="">Seleccione un rol</option>
+          <option *ngFor="let r of rolesList" [value]="r.name">
+            {{ r.name }}
+          </option>
+        </select>
+        <small>{{ errors.roles }}</small>
+      </div>
+
+      <div class="input-group" *ngIf="isEditMode">
+        <label>
+          <input type="checkbox" [(ngModel)]="user.emailConfirmed" /> Correo confirmado
+        </label>
+      </div>
+
+      <div class="input-group" *ngIf="isEditMode">
+        <label>
+          <input type="checkbox" [(ngModel)]="user.isLocked" /> Usuario bloqueado
+        </label>
+      </div>
+
+    </div>
+
+    <hr>
+
+    <div class="buttons">
+      <button class="btn primary" (click)="save()">Guardar</button>
+      <button class="btn warn" (click)="close()">Cancelar</button>
+    </div>
+
+  </div>
+</div>

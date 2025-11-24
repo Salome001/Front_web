@@ -1,0 +1,40 @@
+<div class="video-container">
+  <video #bgVideo autoplay muted loop playsinline class="bg-video">
+    <source src="/assets/videos/background.mp4" type="video/mp4">
+  </video>
+
+  <video #bgVideoFade muted playsinline class="bg-video bg-video-fade">
+    <source src="/assets/videos/background.mp4" type="video/mp4">
+  </video>
+
+  <div class="video-overlay"></div>
+</div>
+
+<div class="video-overlay"></div>
+
+<app-alert
+  [message]="errorMessage"
+  [bgColor]="alertBg"
+  [textColor]="alertColor"
+  [show]="showAlert"
+></app-alert>
+
+<div class="login-wrapper">
+  <div class="login-card">
+    <h2>Iniciar Sesión</h2>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="email" name="email" placeholder="Ingresa tu email" required>
+      </div>
+
+      <div class="input-group">
+        <label>Contraseña</label>
+        <input type="password" [(ngModel)]="password" name="password" placeholder="********" required>
+      </div>
+
+      <button type="submit">Ingresar</button>
+    </form>
+  </div>
+</div>

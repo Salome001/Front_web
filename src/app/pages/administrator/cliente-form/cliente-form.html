@@ -1,0 +1,62 @@
+<div class="cliente-wrapper">
+  <div class="cliente-card">
+    <h2>{{ cliente.clientId ? 'Editar Cliente' : 'Nuevo Cliente' }}</h2>
+
+    <div class="form-scroll">
+
+      <div class="input-group" [class.error]="errors.identificationType">
+        <label>Tipo de ID</label>
+        <select [(ngModel)]="cliente.identificationType">
+          <option value="">-- Seleccione --</option>
+          <option value="Cédula">Cédula</option>
+          <option value="Pasaporte">Pasaporte</option>
+        </select>
+        <small>{{ errors.identificationType }}</small>
+      </div>
+
+      <div class="input-group" [class.error]="errors.identificationNumber">
+        <label>Número de ID</label>
+        <input type="text" [(ngModel)]="cliente.identificationNumber" placeholder="Número de identificación" />
+        <small>{{ errors.identificationNumber }}</small>
+      </div>
+
+      <div class="input-group" [class.error]="errors.firstName">
+        <label>Nombre</label>
+        <input type="text" [(ngModel)]="cliente.firstName" placeholder="Nombre" />
+        <small>{{ errors.firstName }}</small>
+      </div>
+
+      <div class="input-group" [class.error]="errors.lastName">
+        <label>Apellido</label>
+        <input type="text" [(ngModel)]="cliente.lastName" placeholder="Apellido" />
+        <small>{{ errors.lastName }}</small>
+      </div>
+
+      <div class="input-group" [class.error]="errors.phone">
+        <label>Teléfono</label>
+        <input type="text" [(ngModel)]="cliente.phone" placeholder="Teléfono" />
+        <small>{{ errors.phone }}</small>
+      </div>
+
+      <div class="input-group" [class.error]="errors.email">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="cliente.email" placeholder="Correo electrónico" />
+        <small>{{ errors.email }}</small>
+      </div>
+
+      <div class="input-group" [class.error]="errors.address">
+        <label>Dirección</label>
+        <input type="text" [(ngModel)]="cliente.address" placeholder="Dirección" />
+        <small>{{ errors.address }}</small>
+      </div>
+
+    </div>
+
+    <hr />
+
+    <div class="buttons">
+      <button class="btn primary" (click)="save()">{{ cliente.clientId ? 'Actualizar' : 'Guardar' }}</button>
+      <button class="btn warn" (click)="close()">Cancelar</button>
+    </div>
+  </div>
+</div>

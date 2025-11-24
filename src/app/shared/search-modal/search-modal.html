@@ -1,0 +1,167 @@
+<div class="search-modal-wrapper">
+  <div class="search-modal-container">
+
+    <div class="top-buttons">
+      <input
+        type="text"
+        placeholder="Buscar..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+      />
+      <button (click)="cancel()">Cancelar</button>
+    </div>
+
+    <div class="table-scroll">
+
+      <table>
+        <thead>
+          <!-- Roles -->
+          <tr *ngIf="data.entity === 'Roles'">
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Activo</th>
+            <th>Acciones</th>
+          </tr>
+
+          <!-- Productos -->
+          <tr *ngIf="data.entity === 'Product'">
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Activo</th>
+            <th>Acciones</th>
+          </tr>
+<!-- Usuarios -->
+<tr *ngIf="data.entity === 'Usuarios'">
+  <th>Identificación</th>
+  <th>Usuario</th>
+  <th>Email</th>
+  <th>Bloqueado</th>
+  <th>Email Confirmado</th>
+  <th>Acciones</th>
+</tr>
+
+<ng-container *ngIf="data.entity === 'Usuarios'">
+  <tr *ngFor="let item of filteredItems">
+    <td>{{ item.identificationNumber }}</td>
+    <td>{{ item.userName }}</td>
+    <td>{{ item.email }}</td>
+    <td>
+      <span [class.active]="!item.isLocked" [class.inactive]="item.isLocked">
+        {{ item.isLocked ? 'Sí' : 'No' }}
+      </span>
+    </td>
+    <td>
+      <span [class.active]="item.emailConfirmed" [class.inactive]="!item.emailConfirmed">
+        {{ item.emailConfirmed ? 'Sí' : 'No' }}
+      </span>
+    </td>
+    <td>
+      <button (click)="selectItem(item)">Seleccionar</button>
+    </td>
+  </tr>
+</ng-container>
+
+          <!-- Clientes -->
+          <tr *ngIf="data.entity === 'Client'">
+            <th>ID</th>
+            <th>Tipo Identificación</th>
+            <th>Número Identificación</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Dirección</th>
+            <th>Acciones</th>
+          </tr>
+
+          <!-- Facturas -->
+<tr *ngIf="data.entity === 'Invoices'">
+  <th>Número</th>
+  <th>Cliente</th>
+  <th>Fecha Emisión</th>
+  <th>Subtotal</th>
+  <th>IVA</th>
+  <th>Total</th>
+  <th>Acciones</th>
+</tr>
+
+        </thead>
+
+        <tbody>
+
+          <!-- Roles -->
+          <ng-container *ngIf="data.entity === 'Roles'">
+            <tr *ngFor="let item of filteredItems">
+              <td>{{ item.name }}</td>
+              <td>{{ item.description || 'Sin descripción' }}</td>
+              <td>
+                <span [class.active]="item.isActive" [class.inactive]="!item.isActive">
+                  {{ item.isActive ? 'Sí' : 'No' }}
+                </span>
+              </td>
+              <td>
+                <button (click)="selectItem(item)">Seleccionar</button>
+              </td>
+            </tr>
+          </ng-container>
+
+          <!-- Productos -->
+          <ng-container *ngIf="data.entity === 'Product'">
+            <tr *ngFor="let item of filteredItems">
+              <td>{{ item.code }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.description || 'Sin descripción' }}</td>
+              <td>{{ item.price | currency }}</td>
+              <td>{{ item.stock }}</td>
+              <td>
+                <span [class.active]="item.isActive" [class.inactive]="!item.isActive">
+                  {{ item.isActive ? 'Sí' : 'No' }}
+                </span>
+              </td>
+              <td>
+                <button (click)="selectItem(item)">Seleccionar</button>
+              </td>
+            </tr>
+          </ng-container>
+<ng-container *ngIf="data.entity === 'Invoices'">
+  <tr *ngFor="let item of filteredItems">
+    <td>{{ item.invoiceNumber }}</td>
+    <td>{{ item.client?.firstName }} {{ item.client?.lastName }}</td>
+    <td>{{ item.issueDate | date:'shortDate' }}</td>
+    <td>{{ item.subtotal | currency }}</td>
+    <td>{{ item.tax | currency }}</td>
+    <td>{{ item.total | currency }}</td>
+    <td>
+      <button (click)="openInvoiceDetail(item)">Seleccionar</button>
+    </td>
+  </tr>
+</ng-container>
+
+
+          <!-- Clientes -->
+          <ng-container *ngIf="data.entity === 'Client'">
+            <tr *ngFor="let item of filteredItems">
+              <td>{{ item.clientId }}</td>
+              <td>{{ item.identificationType }}</td>
+              <td>{{ item.identificationNumber }}</td>
+              <td>{{ item.firstName }}</td>
+              <td>{{ item.lastName }}</td>
+              <td>{{ item.phone }}</td>
+              <td>{{ item.email }}</td>
+              <td>{{ item.address }}</td>
+              <td>
+                <button (click)="selectItem(item)">Seleccionar</button>
+              </td>
+            </tr>
+          </ng-container>
+
+        </tbody>
+      </table>
+
+    </div>
+
+  </div>
+</div>

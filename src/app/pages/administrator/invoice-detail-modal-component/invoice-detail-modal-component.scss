@@ -1,0 +1,38 @@
+.invoice-info p {
+  margin: 5px 0;
+}
+
+.table-scroll {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+thead {
+  background-color: #f2f2f2;
+}
+
+.actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+button {
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}

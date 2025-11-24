@@ -1,0 +1,109 @@
+<div class="invoice-container">
+
+  <h2>Facturas</h2>
+
+  <div class="invoice-form">
+    <button mat-raised-button color="primary" (click)="searchInvoices()">Buscar</button>
+
+    <div class="search-section">
+
+      <!-- Cliente -->
+      <div class="client-section">
+        <mat-form-field appearance="fill">
+          <mat-label>Buscar Cliente</mat-label>
+          <input matInput [formControl]="clientSearch">
+        </mat-form-field>
+
+        <div class="autocomplete-list" *ngIf="filteredClients.length">
+          <div *ngFor="let client of filteredClients" (click)="selectClient(client)">
+            {{client.firstName}} {{client.lastName}} - {{client.identificationNumber}}
+          </div>
+        </div>
+
+        <div *ngIf="selectedClient" class="client-info">
+          <p><b>ID Cliente:</b> {{selectedClient.clientId}}</p>
+          <p><b>Nombre:</b> {{selectedClient.firstName}} {{selectedClient.lastName}}</p>
+          <p><b>Tipo de ID:</b> {{selectedClient.identificationType}}</p>
+          <p><b>Número de ID:</b> {{selectedClient.identificationNumber}}</p>
+          <p><b>Teléfono:</b> {{selectedClient.phone}}</p>
+          <p><b>Email:</b> {{selectedClient.email}}</p>
+          <p><b>Dirección:</b> {{selectedClient.address}}</p>
+        </div>
+      </div>
+
+      <!-- Producto -->
+      <div class="product-section">
+        <mat-form-field appearance="fill">
+          <mat-label>Buscar Producto</mat-label>
+          <input matInput [formControl]="productSearch">
+        </mat-form-field>
+
+        <div class="autocomplete-list" *ngIf="filteredProducts.length">
+          <div *ngFor="let product of filteredProducts" (click)="selectProduct(product)">
+            {{product.name}} - {{product.price | currency}} - Stock: {{product.stock}} - {{product.isActive ? 'Activo' : 'Inactivo'}}
+          </div>
+        </div>
+
+        <div *ngIf="selectedProduct" class="product-info">
+          <p><b>Nombre:</b> {{selectedProduct.name}}</p>
+          <p><b>Precio:</b> {{selectedProduct.price | currency}}</p>
+          <p><b>Stock:</b> {{selectedProduct.stock}}</p>
+          <p><b>Activo:</b> {{selectedProduct.isActive ? 'Sí' : 'No'}}</p>
+          <div class="quantity-buttons">
+            <button mat-mini-fab color="primary" class="big-fab" (click)="addProductToInvoice(selectedProduct)">+</button>
+          </div>
+        </div>
+      </div>
+
+      <mat-form-field appearance="fill" class="observations-field">
+        <mat-label>Observaciones</mat-label>
+        <textarea matInput [formControl]="observations" rows="3"></textarea>
+      </mat-form-field>
+
+    </div>
+
+    <!-- Tabla de detalles -->
+    <div class="table-wrapper">
+      <table mat-table [dataSource]="currentInvoice.invoiceDetails" class="mat-elevation-z8">
+        <ng-container matColumnDef="productName">
+          <th mat-header-cell *matHeaderCellDef> Producto </th>
+          <td mat-cell *matCellDef="let d"> {{d.product.name}} </td>
+        </ng-container>
+        <ng-container matColumnDef="quantity">
+          <th mat-header-cell *matHeaderCellDef> Cantidad </th>
+          <td mat-cell *matCellDef="let d">
+            <button mat-mini-fab color="accent" (click)="decreaseQuantity(d)">-</button>
+            <input type="number" [ngModel]="d.quantity" (ngModelChange)="updateQuantity(d,$event)" min="1">
+            <button mat-mini-fab color="accent" (click)="increaseQuantity(d)">+</button>
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="subtotal">
+          <th mat-header-cell *matHeaderCellDef> Subtotal </th>
+          <td mat-cell *matCellDef="let d"> {{d.subtotal | currency}} </td>
+        </ng-container>
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Acciones </th>
+          <td mat-cell *matCellDef="let d">
+            <button mat-mini-fab class="delete-button" (click)="removeProduct(d)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="['productName','quantity','subtotal','actions']"></tr>
+        <tr mat-row *matRowDef="let row; columns:['productName','quantity','subtotal','actions'];"></tr>
+      </table>
+    </div>
+
+    <div class="totals">
+      <p><b>Subtotal:</b> {{ currentInvoice.subtotal | currency }}</p>
+      <p><b>IVA (12%):</b> {{ currentInvoice.tax | currency }}</p>
+      <p><b>Total:</b> {{ currentInvoice.total | currency }}</p>
+    </div>
+
+    <button mat-raised-button color="primary" (click)="saveInvoice()">Guardar Factura</button>
+  </div>
+
+
+
+
