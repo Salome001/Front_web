@@ -4,11 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-
 import { ClienteService } from '../../../services/client.service';
 import { ClientDto } from '../../../models/client.dto';
 import { ClienteFormComponent } from '../cliente-form/cliente-form';
 import { SearchModalComponent } from '../../../shared/search-modal/search-modal';
+import { UserService } from '../../../services/user.service';
 
 @Component({
   selector: 'app-clientes',
@@ -38,12 +38,24 @@ export class ClientesComponent implements OnInit {
   ];
 
   dataSource = new MatTableDataSource<ClientDto>();
+userRole: string[] = [];
+  constructor(private clienteService: ClienteService, private dialog: MatDialog,   private userService: UserService) {}
 
-  constructor(private clienteService: ClienteService, private dialog: MatDialog) {}
+ngOnInit(): void {
+  this.loadUserRole();
+  this.loadClientes();
+}
 
-  ngOnInit(): void {
-    this.loadClientes();
-  }
+loadUserRole() {
+  this.userService.getCurrentUser().subscribe(user => {
+    this.userRole = user.roles;
+
+    if (!this.userRole.includes('Administrator')) {
+      // 👉 Eliminar la columna "actions" si el usuario NO es admin
+      this.displayedColumns = this.displayedColumns.filter(c => c !== 'actions');
+    }
+  });
+}
 
 loadClientes(): void {
   this.clienteService.getAll().subscribe({
@@ -75,7 +87,9 @@ loadClientes(): void {
   }
 
   openSearch(): void {
-    const dialogRef = this.dialog.open(SearchModalComponent, { data: { entity: 'Client' }, width: '700px' });
+    const dialogRef = this.dialog.open(SearchModalComponent, { data: { entity: 'Client' }, 
+    width: '90vw',      
+  maxWidth: '90vw',   });
     dialogRef.afterClosed().subscribe(selectedClient => {
       if (selectedClient) this.editCliente(selectedClient);
     });

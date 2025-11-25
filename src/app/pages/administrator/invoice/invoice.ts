@@ -215,8 +215,8 @@ export class InvoiceComponent implements OnInit {
 searchInvoices() {
   const dialogRef = this.dialog.open(SearchModalComponent, {
     data: { entity: 'Invoices' } ,// puedes poner 'Invoices' o cualquier identificador que uses,
-      width: '90vw',       // ocupa 95% del ancho de la ventana
-  maxWidth: '90vw',    // asegura que no se limite por Angular Material
+      width: '90vw',  
+  maxWidth: '90vw',    
 
 
   });

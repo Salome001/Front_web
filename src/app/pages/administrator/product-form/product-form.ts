@@ -10,6 +10,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { Alert } from '../../../shared/alert/alert';
+import { UserService } from '../../../services/user.service';
+import { ChangeDetectorRef } from '@angular/core';
+
 
 @Component({
   selector: 'app-product-form',
@@ -38,6 +41,7 @@ export class ProductFormComponent {
     isActive: true,
     imageUri: ''
   };
+userRole: string[] = [];
 
   selectedFile: File | null = null;
   filePreview: string | ArrayBuffer | null = null;
@@ -49,13 +53,24 @@ export class ProductFormComponent {
   constructor(
     private productService: ProductService,
     private dialogRef: MatDialogRef<ProductFormComponent>,
+     private userService: UserService,
+      private cd: ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) public data: ProductDto | null
   ) {
     if (data) {
       this.product = { ...data };
       this.filePreview = this.product.imageUri || null;
+      
     }
+      this.loadUserRole();
   }
+loadUserRole() {
+  this.userService.getCurrentUser().subscribe(user => {
+    this.userRole = user.roles;
+    this.cd.detectChanges();  
+  });
+}
+
 
   showAlert(msg: string) {
     this.alertMessage = msg;

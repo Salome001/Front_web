@@ -7,6 +7,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ClienteService } from '../../../services/client.service';
 import { ClientDto } from '../../../models/client.dto';
+import { UserService } from '../../../services/user.service';
+import { ChangeDetectorRef } from '@angular/core';
+
 
 @Component({
   selector: 'app-cliente-form',
@@ -32,6 +35,7 @@ export class ClienteFormComponent {
     email: '',
     address: ''
   };
+userRole: string[] = [];
 
   errors: any = {
     identificationType: '',
@@ -46,10 +50,19 @@ export class ClienteFormComponent {
   constructor(
     private clienteService: ClienteService,
     private dialogRef: MatDialogRef<ClienteFormComponent>,
+      private userService: UserService,
+        private cd: ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) public data: ClientDto | null
   ) {
     if (data) this.cliente = { ...data };
+      this.loadUserRole();
   }
+loadUserRole() {
+  this.userService.getCurrentUser().subscribe(user => {
+    this.userRole = user.roles;
+    this.cd.detectChanges();  // 👈 FUERZA ACTUALIZAR LA VISTA
+  });
+}
 
   validateForm(): boolean {
     this.errors = {

@@ -1,42 +1,51 @@
-<h2>Factura #{{ data.invoiceNumber }}</h2>
+<div class="invoice-modal-container">
+  
+  <h2 class="modal-title">Factura #{{ data.invoiceNumber }}</h2>
 
-<div class="invoice-info">
-  <p><strong>Cliente:</strong> {{ data.client?.firstName }} {{ data.client?.lastName }}</p>
-  <p><strong>Fecha emisión:</strong> {{ data.issueDate | date:'shortDate' }}</p>
-  <p><strong>Subtotal:</strong> {{ data.subtotal | currency }}</p>
-  <p><strong>IVA:</strong> {{ data.tax | currency }}</p>
-  <p><strong>Total:</strong> {{ data.total | currency }}</p>
-</div>
+  <div class="invoice-info">
+    <p><strong>Cliente:</strong> {{ data.client?.firstName }} {{ data.client?.lastName }}</p>
+    <p><strong>Fecha emisión:</strong> {{ data.issueDate | date:'shortDate' }}</p>
+    <p><strong>Subtotal:</strong> {{ data.subtotal | currency }}</p>
+    <p><strong>IVA:</strong> {{ data.tax | currency }}</p>
+    <p><strong>Total:</strong> {{ data.total | currency }}</p>
+  </div>
 
-<h3>Detalles de la factura</h3>
-<div class="table-scroll">
-  <table>
-    <thead>
-      <tr>
-        <th>Código</th>
-        <th>Producto</th>
-        <th>Descripción</th>
-        <th>Precio Unitario</th>
-        <th>Cantidad</th>
-        <th>Subtotal</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let detail of details">
-        <td>{{ detail.product?.code }}</td>
-        <td>{{ detail.product?.name }}</td>
-        <td>{{ detail.product?.description }}</td>
-        <td>{{ detail.unitPrice | currency }}</td>
-        <td>{{ detail.quantity }}</td>
-        <td>{{ detail.subtotal | currency }}</td>
-      </tr>
-      <tr *ngIf="details.length === 0">
-        <td colspan="6" style="text-align:center;">No hay detalles para mostrar</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+  <h3 class="details-title">Detalles de la factura</h3>
 
-<div class="actions">
-  <button (click)="close()">Cerrar</button>
+  <div class="table-scroll">
+    <table class="invoice-table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Producto</th>
+          <th>Descripción</th>
+          <th>Precio Unitario</th>
+          <th>Cantidad</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let detail of details">
+          <td>{{ detail.product?.code }}</td>
+          <td>{{ detail.product?.name }}</td>
+          <td>{{ detail.product?.description }}</td>
+          <td>{{ detail.unitPrice | currency }}</td>
+          <td>{{ detail.quantity }}</td>
+          <td>{{ detail.subtotal | currency }}</td>
+        </tr>
+
+        <tr *ngIf="details.length === 0">
+          <td colspan="6" class="no-details">No hay detalles para mostrar</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="actions">
+    <button class="close-btn" (click)="close()">Cerrar</button>
+    <hr>
+    <button class="close-btn" (click)="exportPDF()">Exportar PDF</button>
+  </div>
+
 </div>

@@ -55,7 +55,7 @@
     <hr />
 
     <div class="buttons">
-      <button class="btn primary" (click)="save()">{{ product.productId ? 'Actualizar' : 'Guardar' }}</button>
+      <button   *ngIf="userRole.includes('Administrator')" class="btn primary" (click)="save()">{{ product.productId ? 'Actualizar' : 'Guardar' }}</button>
       <button class="btn warn" (click)="close()">Cancelar</button>
     </div>
 

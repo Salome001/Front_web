@@ -81,7 +81,8 @@ export class RolesComponent implements OnInit {
   openSearch(): void {
     const dialogRef = this.dialog.open(SearchModalComponent, {
       data: { entity: 'Roles' },
-      width: '700px',
+      width: '90vw',     
+      maxWidth: '90vw',  
       disableClose: false
     });
 

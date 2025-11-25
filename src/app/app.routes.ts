@@ -26,7 +26,11 @@ export const routes: Routes = [
   { path: 'employees', 
     component: HomeEmployees,
     children: [
-      { path: '', redirectTo: '', pathMatch: 'full' }
+      { path: '', redirectTo: '', pathMatch: 'full' },
+      { path: 'facturas', component: InvoiceComponent },
+      { path: 'clientes', component: ClientesComponent },
+      { path: 'productos', component: ProductsComponent }
+
     ]
 
 

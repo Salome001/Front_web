@@ -1,6 +1,6 @@
 <div class="clients-container">
   <div class="top-buttons">
-    <button (click)="addCliente()">+ Nuevo Cliente</button>
+    <button *ngIf="userRole.includes('Administrator')" (click)="addCliente()">+ Nuevo Cliente</button>
     <button (click)="openSearch()">🔍 Buscar Cliente</button>
   </div>
 

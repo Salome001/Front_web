@@ -80,7 +80,8 @@ export class UsersComponent implements OnInit {
   openSearch(): void {
   const dialogRef = this.dialog.open(SearchModalComponent, {
     data: { entity: 'Usuarios' },
-    width: '700px',
+    width: '90vw',     
+  maxWidth: '90vw',  
     disableClose: false
   });
 
