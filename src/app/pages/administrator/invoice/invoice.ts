@@ -67,7 +67,7 @@ export class InvoiceComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-
+    this.loadUserInvoices();
 
     // Autocompletado cliente
     this.clientSearch.valueChanges.pipe(
@@ -80,6 +80,41 @@ export class InvoiceComponent implements OnInit {
       debounceTime(200),
       switchMap(val => val ? this.searchProducts(val) : of([]))
     ).subscribe(res => this.filteredProducts = res);
+  }
+
+  loadUserInvoices() {
+    // Obtener user ID directamente del JWT token
+    const currentUserId = this.userService.getCurrentUserIdFromToken();
+    
+    if (!currentUserId) {
+      console.error('No se pudo obtener el user ID del token JWT');
+      this.invoices = [];
+      this.dataSource.data = [];
+      return;
+    }
+    
+    // Cargar facturas y filtrar por usuario actual
+    this.invoiceService.getAll(1, 100, '').subscribe({
+      next: (res) => {
+        const allInvoices = res.items ?? [];
+        console.log('Todas las facturas:', allInvoices);
+        console.log('Filtrando por user ID:', currentUserId);
+        
+        // Filtrar facturas por userId del lado cliente
+        this.invoices = allInvoices.filter((invoice: any) => {
+          console.log(`Factura ${invoice.invoiceId}: userId=${invoice.userId}`);
+          return invoice.userId === currentUserId;
+        });
+        
+        this.dataSource.data = this.invoices;
+        console.log(`Cargadas ${this.invoices.length} facturas para el usuario ${currentUserId}`);
+      },
+      error: (err) => {
+        console.error('Error cargando facturas:', err);
+        this.invoices = [];
+        this.dataSource.data = [];
+      }
+    });
   }
 
   searchClients(term: string): Observable<ClientDto[]> {
@@ -192,7 +227,9 @@ export class InvoiceComponent implements OnInit {
         };
         this.invoiceService.create(invoiceToSend).subscribe({
           next: () => {
-
+            // Recargar las facturas del usuario después de crear una nueva
+            this.loadUserInvoices();
+            
             this.currentInvoice = { invoiceDetails: [], subtotal: 0, tax: 0, total: 0 };
             this.selectedClient = null;
             this.selectedProduct = null;
@@ -210,6 +247,8 @@ export class InvoiceComponent implements OnInit {
   deleteInvoice(id: number) {
     this.invoiceService.delete(id);
   }
+
+
 
 
 searchInvoices() {

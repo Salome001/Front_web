@@ -170,6 +170,17 @@
 
         </tbody>
       </table>
+
+      <!-- Mensaje cuando no hay resultados -->
+      <div *ngIf="filteredItems.length === 0" class="text-center p-4">
+        <p class="text-muted">
+          <span *ngIf="data.entity === 'Invoices'">
+            No tienes facturas creadas aún.
+            <br><small>User ID actual: {{ currentUserId || 'No identificado' }}</small>
+          </span>
+          <span *ngIf="data.entity !== 'Invoices'">No se encontraron resultados.</span>
+        </p>
+      </div>
         </div>
       </div>
     </div>

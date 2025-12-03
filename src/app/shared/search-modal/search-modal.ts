@@ -28,6 +28,7 @@ export class SearchModalComponent implements OnInit, AfterViewInit {
   allItems: any[] = [];
   filteredItems: any[] = [];
   searchTerm: string = '';
+  currentUserId: string = '';
 
   constructor(
     private dialogRef: MatDialogRef<SearchModalComponent>,
@@ -82,10 +83,42 @@ export class SearchModalComponent implements OnInit, AfterViewInit {
       });
     }
     else if (this.data.entity === 'Invoices') {
-      this.invoiceService.getAll(1, 100, '').subscribe(res => {
-        this.allItems = res.items ?? [];
-        this.filteredItems = [...this.allItems];
+      // Obtener user ID directamente del JWT token
+      const userId = this.usersService.getCurrentUserIdFromToken();
+      
+      if (!userId) {
+        console.error('No se pudo obtener el user ID del token JWT');
+        this.allItems = [];
+        this.filteredItems = [];
         this.cd.detectChanges();
+        return;
+      }
+      
+      this.currentUserId = userId;
+      
+      // Cargar todas las facturas y filtrar por usuario actual
+      this.invoiceService.getAll(1, 100, '').subscribe({
+        next: (res) => {
+          const allInvoices = res.items ?? [];
+          console.log('Todas las facturas:', allInvoices);
+          console.log('Filtrando por user ID:', this.currentUserId);
+          
+          // Filtrar facturas por userId del lado cliente
+          this.allItems = allInvoices.filter((invoice: any) => {
+            console.log(`Factura ${invoice.invoiceId}: userId=${invoice.userId}`);
+            return invoice.userId === this.currentUserId;
+          });
+          
+          this.filteredItems = [...this.allItems];
+          this.cd.detectChanges();
+          console.log(`Loaded ${this.allItems.length} invoices for user ${this.currentUserId}`);
+        },
+        error: (err) => {
+          console.error('Error loading invoices:', err);
+          this.allItems = [];
+          this.filteredItems = [];
+          this.cd.detectChanges();
+        }
       });
     }
   }

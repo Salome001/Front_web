@@ -33,7 +33,22 @@ export class UserService {
 
 create(user: CreateUserDto): Observable<UserDto> {
   const headers = this.getAuthHeaders();
-  return this.http.post<UserDto>(this.url, user, { headers });
+  
+  // Crear FormData para coincidir con [FromForm] del controller
+  const formData = new FormData();
+  formData.append('IdentificationNumber', user.identificationNumber);
+  formData.append('Email', user.email);
+  formData.append('UserName', user.userName);
+  formData.append('Password', user.password);
+  
+  // Agregar roles
+  if (user.roles && Array.isArray(user.roles)) {
+    user.roles.forEach((role: string, index: number) => {
+      formData.append(`Roles[${index}]`, role);
+    });
+  }
+  
+  return this.http.post<UserDto>(this.url, formData, { headers });
 }
 
 
@@ -67,6 +82,44 @@ create(user: CreateUserDto): Observable<UserDto> {
   getCurrentUser(): Observable<UserDto> {
     const headers = this.getAuthHeaders();
     return this.http.get<UserDto>(`${this.url}/me`, { headers });
+  }
+
+  /** 🔹 Obtener user ID desde el JWT token */
+  getCurrentUserIdFromToken(): string | null {
+    try {
+      const token = sessionStorage.getItem('token');
+      if (!token) {
+        console.warn('No se encontró token JWT en sessionStorage');
+        return null;
+      }
+      
+      // Verificar que el token tenga el formato correcto (3 partes separadas por .)
+      const tokenParts = token.split('.');
+      if (tokenParts.length !== 3) {
+        console.error('Token JWT inválido: debe tener 3 partes');
+        return null;
+      }
+      
+      // Decodificar JWT payload
+      const payload = JSON.parse(atob(tokenParts[1]));
+      console.log('JWT Payload decodificado:', payload);
+      
+      // El user ID puede estar en diferentes campos dependiendo del backend
+      const userId = payload.sub || payload.userId || payload.id || payload.nameid || 
+                   payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ||
+                   payload.unique_name;
+      
+      if (userId) {
+        console.log('User ID extraído del JWT:', userId);
+        return userId.toString();
+      } else {
+        console.error('No se pudo encontrar user ID en el JWT payload. Campos disponibles:', Object.keys(payload));
+        return null;
+      }
+    } catch (error) {
+      console.error('Error decodificando token JWT:', error);
+      return null;
+    }
   }
 
    unlock(id: string): Observable<void> {
