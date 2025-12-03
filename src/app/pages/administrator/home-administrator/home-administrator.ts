@@ -7,6 +7,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { UserService } from '../../../services/user.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-home-administrator',
@@ -30,7 +31,7 @@ export class HomeAdministratorComponent implements AfterViewInit, OnInit {
 
   @ViewChild('bgVideo') bgVideo!: ElementRef<HTMLVideoElement>;
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService, private authService: AuthService) {}
 
   ngOnInit() {
     // Leer usuario de sessionStorage si existe
@@ -71,5 +72,9 @@ export class HomeAdministratorComponent implements AfterViewInit, OnInit {
 
   isAdmin(): boolean {
     return this.role === 'Administrator';
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }

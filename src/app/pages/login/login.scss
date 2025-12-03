@@ -119,6 +119,53 @@ button {
   }
 }
 
+// Estilos para el contenedor de contraseña con botón al lado
+.password-input-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  
+  .password-input {
+    flex: 1;
+    width: auto !important;
+    margin: 0;
+  }
+  
+  .eye-button-side {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 8px 12px;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+    min-width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 40px;
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    &:focus {
+      outline: 2px solid rgba(255, 255, 255, 0.5);
+      outline-offset: 2px;
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
 
 .video-container {
   position: fixed;

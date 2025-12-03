@@ -35,6 +35,10 @@ export class UserFormComponent implements OnInit {
   alertMessage = '';
   alertShow = false;
   loadingRoles = true;
+  showPassword = false;
+  showCurrentPassword = false;
+  showNewPassword = false;
+  showConfirmPassword = false;
 
   errors: any = {
     identificationNumber: '',
@@ -54,34 +58,73 @@ export class UserFormComponent implements OnInit {
     private rolesService: RoleService,
     private dialogRef: MatDialogRef<UserFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
+  ) {
+    console.log('UserFormComponent constructor - data recibida:', this.data);
+  }
 
   ngOnInit(): void {
     this.loadRoles();
+    this.initializeFormData();
+  }
+
+  initializeFormData(): void {
+    if (this.data) {
+      console.log('Datos recibidos para edición:', this.data);
+      this.isEditMode = true;
+      
+      // Cargar todos los datos del usuario
+      this.user = {
+        id: this.data.id || null,
+        identificationNumber: this.data.identificationNumber || '',
+        email: this.data.email || '',
+        userName: this.data.userName || '',
+        password: '',
+        roles: '',
+        currentPassword: '',
+        newPassword: '',
+        confirmNewPassword: '',
+        emailConfirmed: this.data.emailConfirmed || false,
+        isLocked: this.data.isLocked || false
+      };
+
+      // Manejar los roles
+      if (this.data.roles) {
+        if (Array.isArray(this.data.roles) && this.data.roles.length > 0) {
+          this.user.roles = this.data.roles[0];
+        } else if (typeof this.data.roles === 'string') {
+          this.user.roles = this.data.roles;
+        }
+      }
+
+      console.log('Usuario inicializado para edición:', this.user);
+    } else {
+      console.log('Modo creación - sin datos previos');
+      this.isEditMode = false;
+    }
   }
 
   loadRoles() {
     this.rolesService.getAll().subscribe({
       next: (r) => {
-        this.rolesList = r;
+        this.rolesList = r || [];
         this.loadingRoles = false;
-
-        if (this.data) {
-          setTimeout(() => {
-            this.isEditMode = true;
-            this.user = { ...this.data };
-
-            if (this.data.roles && Array.isArray(this.data.roles)) {
-              this.user.roles = this.data.roles[0];
-            }
-
-            this.user.currentPassword = '';
-            this.user.newPassword = '';
-            this.user.confirmNewPassword = '';
-          });
+        console.log('Roles cargados:', this.rolesList);
+        
+        // Si estamos en modo edición y ya tenemos los datos, asegurar que el rol esté seleccionado
+        if (this.isEditMode && this.data) {
+          this.initializeFormData();
         }
       },
-      error: () => this.showAlert('Error cargando roles.')
+      error: (err) => {
+        console.error('Error cargando roles:', err);
+        this.loadingRoles = false;
+        this.rolesList = [];
+        if (err.status === 401) {
+          this.showAlert('Token de autenticación inválido. Por favor, inicie sesión nuevamente.');
+        } else {
+          this.showAlert('Error cargando roles. Verifique su conexión.');
+        }
+      }
     });
   }
 
@@ -110,72 +153,119 @@ export class UserFormComponent implements OnInit {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); 
   }
 
+  validarPassword(password: string): boolean {
+    // Mínimo 8 caracteres, 1 mayúscula, 1 número, 1 carácter especial
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_#+-])[A-Za-z\d@$!%*?&_#+-]{8,}$/;
+    console.log('Validando contraseña:', password, 'Resultado:', regex.test(password));
+    return regex.test(password);
+  }
+
+  togglePasswordVisibility(field: string): void {
+    switch(field) {
+      case 'password': this.showPassword = !this.showPassword; break;
+      case 'currentPassword': this.showCurrentPassword = !this.showCurrentPassword; break;
+      case 'newPassword': this.showNewPassword = !this.showNewPassword; break;
+      case 'confirmPassword': this.showConfirmPassword = !this.showConfirmPassword; break;
+    }
+  }
+
+  // Validación en tiempo real
+  validateField(fieldName: string): void {
+    switch(fieldName) {
+      case 'identificationNumber':
+        if (!this.user.identificationNumber?.trim()) {
+          this.errors.identificationNumber = "La cédula es obligatoria";
+        } else if (!this.validarCedula(this.user.identificationNumber)) {
+          this.errors.identificationNumber = "La cédula no es válida";
+        } else {
+          this.errors.identificationNumber = '';
+        }
+        break;
+      
+      case 'email':
+        if (!this.user.email?.trim()) {
+          this.errors.email = "El correo es obligatorio";
+        } else if (!this.validarEmail(this.user.email)) {
+          this.errors.email = "El correo no tiene un formato válido";
+        } else {
+          this.errors.email = '';
+        }
+        break;
+      
+      case 'userName':
+        if (!this.user.userName?.trim()) {
+          this.errors.userName = "El usuario es obligatorio";
+        } else if (this.user.userName.length < 3) {
+          this.errors.userName = "El usuario debe tener mínimo 3 caracteres";
+        } else {
+          this.errors.userName = '';
+        }
+        break;
+      
+      case 'password':
+        if (!this.isEditMode) {
+          if (!this.user.password?.trim()) {
+            this.errors.password = "La contraseña es obligatoria";
+          } else if (!this.validarPassword(this.user.password)) {
+            this.errors.password = "Debe tener mínimo 8 caracteres, 1 mayúscula, 1 número y 1 carácter especial";
+          } else {
+            this.errors.password = '';
+          }
+        }
+        break;
+      
+      case 'newPassword':
+        if (this.isEditMode) {
+          if (this.user.newPassword && this.user.newPassword.trim()) {
+            if (!this.validarPassword(this.user.newPassword)) {
+              this.errors.newPassword = "Debe tener mínimo 8 caracteres, 1 mayúscula, 1 número y 1 carácter especial";
+            } else {
+              this.errors.newPassword = '';
+            }
+          } else {
+            this.errors.newPassword = '';
+          }
+        }
+        break;
+      
+      case 'confirmNewPassword':
+        if (this.isEditMode) {
+          if (this.user.confirmNewPassword && this.user.confirmNewPassword.trim()) {
+            if (this.user.newPassword !== this.user.confirmNewPassword) {
+              this.errors.confirmNewPassword = "Las contraseñas no coinciden";
+            } else {
+              this.errors.confirmNewPassword = '';
+            }
+          } else {
+            this.errors.confirmNewPassword = '';
+          }
+        }
+        break;
+      
+      case 'roles':
+        if (!this.user.roles || this.user.roles === '') {
+          this.errors.roles = "Debe seleccionar un rol";
+        } else {
+          this.errors.roles = '';
+        }
+        break;
+    }
+  }
+
   validateForm(): boolean {
-    this.errors = { 
-      identificationNumber: '', email: '', userName: '', 
-      password: '', roles: '', currentPassword: '', newPassword: '', confirmNewPassword: '' 
-    };
-
-    let valid = true;
-
-    if (!this.user.identificationNumber?.trim()) {
-      this.errors.identificationNumber = "La cédula es obligatoria";
-      valid = false;
-    } else if (!this.validarCedula(this.user.identificationNumber)) {
-      this.errors.identificationNumber = "La cédula no es válida";
-      valid = false;
+    // Validar todos los campos
+    this.validateField('identificationNumber');
+    this.validateField('email');
+    this.validateField('userName');
+    this.validateField('roles');
+    
+    if (!this.isEditMode) {
+      this.validateField('password');
     }
+    // En modo edición no validamos contraseñas ya que el controller actual no las maneja
 
-    if (!this.user.email?.trim()) {
-      this.errors.email = "El correo es obligatorio";
-      valid = false;
-    } else if (!this.validarEmail(this.user.email)) {
-      this.errors.email = "El correo no tiene un formato válido";
-      valid = false;
-    }
-
-    if (!this.user.userName?.trim()) {
-      this.errors.userName = "El usuario es obligatorio";
-      valid = false;
-    }
-
-    if (!this.user.roles || this.user.roles === '') {
-      this.errors.roles = "Debe seleccionar un rol";
-      valid = false;
-    }
-
-    if (!this.user.id) {
-      if (!this.user.password?.trim()) {
-        this.errors.password = "La contraseña es obligatoria";
-        valid = false;
-      } else {
-        if (this.user.password.length < 6) this.errors.password = "Debe tener mínimo 6 caracteres";
-        if (!/[A-Z]/.test(this.user.password)) this.errors.password = "Debe incluir al menos 1 mayúscula";
-        if (!/[a-z]/.test(this.user.password)) this.errors.password = "Debe incluir al menos 1 minúscula";
-        if (!/[0-9]/.test(this.user.password)) this.errors.password = "Debe incluir al menos 1 número";
-      }
-    }
-
-    if (this.isEditMode) {
-      if (!this.user.currentPassword?.trim()) {
-        this.errors.currentPassword = "Debe ingresar la contraseña actual";
-        valid = false;
-      }
-      if (!this.user.newPassword?.trim()) {
-        this.errors.newPassword = "Debe ingresar la nueva contraseña";
-        valid = false;
-      }
-      if (this.user.newPassword !== this.user.confirmNewPassword) {
-        this.errors.confirmNewPassword = "Las contraseñas no coinciden";
-        valid = false;
-      }
-      if (this.user.newPassword?.length < 6) {
-        this.errors.newPassword = "Debe tener mínimo 6 caracteres";
-        valid = false;
-      }
-    }
-
-    return valid;
+    // Verificar si hay errores
+    return Object.values(this.errors).every(error => error === '');
   }
 
   save() {
@@ -203,6 +293,7 @@ export class UserFormComponent implements OnInit {
       return;
     }
 
+    // Crear payload simplificado que coincida con el UserUpdateDto del backend
     const updatePayload: any = {
       id: this.user.id,
       identificationNumber: this.user.identificationNumber,
@@ -210,10 +301,7 @@ export class UserFormComponent implements OnInit {
       userName: this.user.userName,
       roles: this.user.roles ? [this.user.roles] : [],
       emailConfirmed: this.user.emailConfirmed,
-      isLocked: this.user.isLocked,
-      currentPassword: this.user.currentPassword,
-      newPassword: this.user.newPassword,
-      confirmNewPassword: this.user.confirmNewPassword
+      isLocked: this.user.isLocked
     };
 
     this.usersService.update(updatePayload).subscribe({

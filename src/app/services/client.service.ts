@@ -26,7 +26,10 @@ export class ClienteService {
   constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      console.warn('No hay token de autenticación disponible en ClientService');
+    }
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
@@ -93,9 +96,10 @@ export class ClienteService {
     return this.http.get<ClientDto>(`${this.baseUrl}/${id}`, { headers });
   }
 
-  // Crear un nuevo cliente
-  create(cliente: ClientDto): Observable<any> {
+  // Crear un nuevo cliente (usar payload sin clientId)
+  create(cliente: any): Observable<any> {
     const headers = this.getAuthHeaders();
+    console.log('Enviando cliente al backend:', cliente);
     return this.http.post(this.baseUrl, cliente, { headers });
   }
 

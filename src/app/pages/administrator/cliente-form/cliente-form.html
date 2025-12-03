@@ -1,3 +1,5 @@
+<app-alert [message]="alertMessage" [show]="alertShow"></app-alert>
+
 <div class="cliente-wrapper">
   <div class="cliente-card">
     <h2>{{ cliente.clientId ? 'Editar Cliente' : 'Nuevo Cliente' }}</h2>
@@ -6,48 +8,93 @@
 
       <div class="input-group" [class.error]="errors.identificationType">
         <label>Tipo de ID</label>
-        <select [(ngModel)]="cliente.identificationType">
+        <select 
+          [(ngModel)]="cliente.identificationType"
+          (change)="validateField('identificationType')"
+        >
           <option value="">-- Seleccione --</option>
-          <option value="Cédula">Cédula</option>
-          <option value="Pasaporte">Pasaporte</option>
+          <option value="CEDULA">Cédula</option>
+          <option value="PASAPORTE">Pasaporte</option>
         </select>
-        <small>{{ errors.identificationType }}</small>
+        <small class="error-text">{{ errors.identificationType }}</small>
       </div>
 
       <div class="input-group" [class.error]="errors.identificationNumber">
         <label>Número de ID</label>
-        <input type="text" [(ngModel)]="cliente.identificationNumber" placeholder="Número de identificación" />
-        <small>{{ errors.identificationNumber }}</small>
+        <input 
+          type="text" 
+          [(ngModel)]="cliente.identificationNumber" 
+          (input)="soloIdentificacion($event)"
+          (blur)="validateField('identificationNumber')"
+          [placeholder]="cliente.identificationType === 'CEDULA' ? '10 dígitos (ej: 1234567890)' : cliente.identificationType === 'PASAPORTE' ? '6-9 caracteres (ej: AB123456)' : 'Número de identificación'"
+          [maxlength]="cliente.identificationType === 'CEDULA' ? '10' : '9'"
+        />
+        <small class="error-text">{{ errors.identificationNumber }}</small>
       </div>
 
       <div class="input-group" [class.error]="errors.firstName">
         <label>Nombre</label>
-        <input type="text" [(ngModel)]="cliente.firstName" placeholder="Nombre" />
-        <small>{{ errors.firstName }}</small>
+        <input 
+          type="text" 
+          [(ngModel)]="cliente.firstName" 
+          (input)="soloLetras($event, 'firstName')"
+          (blur)="validateField('firstName')"
+          placeholder="Solo letras (ej: Juan Carlos)"
+          maxlength="50"
+        />
+        <small class="error-text">{{ errors.firstName }}</small>
       </div>
 
       <div class="input-group" [class.error]="errors.lastName">
         <label>Apellido</label>
-        <input type="text" [(ngModel)]="cliente.lastName" placeholder="Apellido" />
-        <small>{{ errors.lastName }}</small>
+        <input 
+          type="text" 
+          [(ngModel)]="cliente.lastName" 
+          (input)="soloLetras($event, 'lastName')"
+          (blur)="validateField('lastName')"
+          placeholder="Solo letras (ej: Pérez García)"
+          maxlength="50"
+        />
+        <small class="error-text">{{ errors.lastName }}</small>
       </div>
 
       <div class="input-group" [class.error]="errors.phone">
         <label>Teléfono</label>
-        <input type="text" [(ngModel)]="cliente.phone" placeholder="Teléfono" />
-        <small>{{ errors.phone }}</small>
+        <input 
+          type="text" 
+          [(ngModel)]="cliente.phone" 
+          (input)="soloNumeros($event)"
+          (blur)="validateField('phone')"
+          placeholder="7-10 dígitos (ej: 0987654321)"
+          maxlength="10"
+        />
+        <small class="error-text">{{ errors.phone }}</small>
       </div>
 
       <div class="input-group" [class.error]="errors.email">
         <label>Email</label>
-        <input type="email" [(ngModel)]="cliente.email" placeholder="Correo electrónico" />
-        <small>{{ errors.email }}</small>
+        <input 
+          type="email" 
+          [(ngModel)]="cliente.email" 
+          (blur)="validateField('email')"
+          (input)="onEmailChange()"
+          placeholder="ejemplo@correo.com"
+          maxlength="100"
+        />
+        <small class="error-text">{{ errors.email }}</small>
       </div>
 
       <div class="input-group" [class.error]="errors.address">
         <label>Dirección</label>
-        <input type="text" [(ngModel)]="cliente.address" placeholder="Dirección" />
-        <small>{{ errors.address }}</small>
+        <input 
+          type="text" 
+          [(ngModel)]="cliente.address" 
+          (blur)="validateField('address')"
+          (input)="onAddressChange()"
+          placeholder="Mínimo 5 caracteres (ej: Av. Principal 123)"
+          minlength="5"
+        />
+        <small class="error-text">{{ errors.address }}</small>
       </div>
 
     </div>

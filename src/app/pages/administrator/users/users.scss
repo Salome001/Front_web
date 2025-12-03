@@ -22,7 +22,73 @@
       &:hover {
         background: #1565c0;
       }
+
+      &:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
     }
+  }
+
+  // Estados de carga y error
+  .loading-state, .error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    text-align: center;
+    border: 2px dashed #ddd;
+    border-radius: 12px;
+    background: #f9f9f9;
+
+    .spinner {
+      font-size: 2rem;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin: 10px 0;
+      color: #666;
+      font-size: 1.1rem;
+    }
+
+    button {
+      padding: 8px 16px;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+
+      &:hover {
+        background: #1565c0;
+      }
+    }
+  }
+
+  .error-state {
+    border-color: #f44336;
+    background: #ffebee;
+
+    p {
+      color: #d32f2f;
+    }
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  // Estado sin datos
+  .no-data {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 20px;
+  }
   }
 
   .table-wrapper {
@@ -82,7 +148,7 @@
       }
     }
   }
-}
+
 
 @media (max-width: 768px) {
   .users-container {

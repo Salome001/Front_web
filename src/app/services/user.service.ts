@@ -37,9 +37,25 @@ create(user: CreateUserDto): Observable<UserDto> {
 }
 
 
-  update(user: UserDto): Observable<void> {
+  update(user: any): Observable<void> {
     const headers = this.getAuthHeaders();
-    return this.http.put<void>(`${this.url}/${user.id}`, user, { headers });
+    // Crear FormData para coincidir con [FromForm] del controller
+    const formData = new FormData();
+    formData.append('Id', user.id);
+    formData.append('IdentificationNumber', user.identificationNumber);
+    formData.append('Email', user.email);
+    formData.append('UserName', user.userName);
+    formData.append('EmailConfirmed', user.emailConfirmed.toString());
+    formData.append('IsLocked', user.isLocked.toString());
+    
+    // Agregar roles si existen
+    if (user.roles && Array.isArray(user.roles)) {
+      user.roles.forEach((role: string, index: number) => {
+        formData.append(`Roles[${index}]`, role);
+      });
+    }
+    
+    return this.http.put<void>(`${this.url}/${user.id}`, formData, { headers });
   }
 
   delete(id: string): Observable<void> {

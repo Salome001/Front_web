@@ -11,9 +11,23 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
-    return new HttpHeaders({ Authorization: `Bearer ${token}` });
+  private getAuthHeaders(includeContentType: boolean = true): HttpHeaders {
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      console.warn('No hay token de autenticación disponible en ProductService');
+    }
+    
+    const headers: any = { 'Authorization': `Bearer ${token}` };
+    if (includeContentType) {
+      headers['Content-Type'] = 'application/json';
+    }
+    
+    return new HttpHeaders(headers);
+  }
+
+  private getFormDataHeaders(): HttpHeaders {
+    // Para FormData, no incluir Content-Type para que el navegador lo establezca automáticamente
+    return this.getAuthHeaders(false);
   }
 
   // Obtener todos los productos
@@ -22,23 +36,25 @@ export class ProductService {
       .set('pageNumber', pageNumber)
       .set('pageSize', pageSize);
     if (searchTerm) params = params.set('searchTerm', searchTerm);
-    return this.http.get<{ items: ProductDto[] }>(this.url, { headers: this.getAuthHeaders(), params })
+    return this.http.get<{ items: ProductDto[] }>(`${this.url}/all-including-deleted`, { headers: this.getAuthHeaders(true), params })
       .pipe(map(res => res.items));
   }
 
   // Obtener por ID
   getById(id: number): Observable<ProductDto> {
-    return this.http.get<ProductDto>(`${this.url}/${id}`, { headers: this.getAuthHeaders() });
+    return this.http.get<ProductDto>(`${this.url}/${id}`, { headers: this.getAuthHeaders(true) });
   }
 
-  // Crear producto
+  // Crear producto con FormData
   create(formData: FormData): Observable<any> {
-    return this.http.post(`${this.url}`, formData, { headers: this.getAuthHeaders() });
+    console.log('Creando producto con FormData:', formData);
+    return this.http.post(`${this.url}`, formData, { headers: this.getFormDataHeaders() });
   }
 
-  // Actualizar producto
+  // Actualizar producto con FormData
   update(id: number, formData: FormData): Observable<any> {
-    return this.http.put(`${this.url}/${id}`, formData, { headers: this.getAuthHeaders() });
+    console.log('Actualizando producto con FormData:', formData);
+    return this.http.put(`${this.url}/${id}`, formData, { headers: this.getFormDataHeaders() });
   }
 
   // Eliminar producto

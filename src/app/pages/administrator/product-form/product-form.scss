@@ -52,7 +52,8 @@
   color: #f0f0f0;
 }
 
-.input-group input {
+.input-group input,
+.input-group textarea {
   padding: 12px 15px;
   border-radius: 12px;
   border: none;
@@ -63,20 +64,37 @@
   transition: all 0.2s ease-in-out;
 }
 
-.input-group input:focus {
+.input-group input:focus,
+.input-group textarea:focus {
   outline: none;
   background: rgba(255,255,255,0.2);
   box-shadow: 0 0 15px rgba(244,67,54,0.7);
 }
 
-.input-group.error input {
-  border: 1px solid #f44336 !important;
+.input-group textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
 }
 
-.input-group.error small {
+.input-group.error input,
+.input-group.error textarea {
+  border: 1px solid #f44336 !important;
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.input-group small.help-text {
+  color: #b0b0b0;
+  font-size: 11px;
+  margin-top: 2px;
+  font-style: italic;
+}
+
+.input-group small.error-text {
   color: #f44336;
   font-size: 12px;
   margin-top: 4px;
+  font-weight: 500;
   display: block;
 }
 

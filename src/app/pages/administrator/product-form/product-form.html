@@ -9,31 +9,72 @@
 
       <div class="input-group" [class.error]="errors.code">
         <label for="productCode">Código</label>
-        <input id="productCode" type="text" [(ngModel)]="product.code" placeholder="Código del producto" />
-        <small>{{ errors.code }}</small>
+        <input 
+          id="productCode" 
+          type="text" 
+          [(ngModel)]="product.code" 
+          (input)="formatearCodigo($event)"
+          (blur)="validateField('code')"
+          placeholder="Código del producto (ej: PROD001)"
+          maxlength="10"
+        />
+        <small class="error-text">{{ errors.code }}</small>
       </div>
 
       <div class="input-group" [class.error]="errors.name">
         <label for="productName">Nombre</label>
-        <input id="productName" type="text" [(ngModel)]="product.name" placeholder="Nombre del producto" />
-        <small>{{ errors.name }}</small>
+        <input 
+          id="productName" 
+          type="text" 
+          [(ngModel)]="product.name" 
+          (input)="validateField('name')"
+          (blur)="validateField('name')"
+          placeholder="Nombre del producto"
+          maxlength="100"
+        />
+        <small class="error-text">{{ errors.name }}</small>
       </div>
 
       <div class="input-group" [class.error]="errors.price">
         <label for="productPrice">Precio</label>
-        <input id="productPrice" type="number" [(ngModel)]="product.price" placeholder="0.00" />
-        <small>{{ errors.price }}</small>
+        <input 
+          id="productPrice" 
+          type="text" 
+          [(ngModel)]="product.price" 
+          (input)="soloNumeros($event, 'price')"
+          (blur)="validateField('price')"
+          placeholder="0.00 (ej: 15.99)"
+          maxlength="10"
+        />
+        <small class="error-text">{{ errors.price }}</small>
       </div>
 
-      <div class="input-group">
+      <div class="input-group" [class.error]="errors.description">
         <label for="productDesc">Descripción</label>
-        <input id="productDesc" type="text" [(ngModel)]="product.description" placeholder="Opcional" />
+        <textarea 
+          id="productDesc" 
+          [(ngModel)]="product.description" 
+          (input)="validateField('description')"
+          (blur)="validateField('description')"
+          placeholder="Descripción opcional del producto"
+          maxlength="500"
+          rows="3"
+        ></textarea>
+        <small class="error-text">{{ errors.description }}</small>
       </div>
 
       <div class="input-group" [class.error]="errors.stock">
         <label for="productStock">Stock</label>
-        <input id="productStock" type="number" [(ngModel)]="product.stock" placeholder="0" />
-        <small>{{ errors.stock }}</small>
+        <input 
+          id="productStock" 
+          type="text" 
+          [(ngModel)]="product.stock" 
+          (input)="soloEnteros($event)"
+          (blur)="validateField('stock')"
+          placeholder="Cantidad en inventario"
+          maxlength="6"
+        />
+        <small class="error-text">{{ errors.stock }}</small>
       </div>
 
       <div class="checkbox-group">
@@ -41,9 +82,16 @@
         <label for="productActive">Activo</label>
       </div>
 
-      <div class="input-group">
+      <div class="input-group" [class.error]="errors.image">
         <label for="productImage">Imagen</label>
-        <input id="productImage" type="file" (change)="onFileSelected($event)" />
+        <input 
+          id="productImage" 
+          type="file" 
+          (change)="onFileSelected($event)"
+          accept="image/*"
+        />
+        <small class="help-text">Formatos: JPG, PNG, GIF (máx. 5MB)</small>
+        <small class="error-text">{{ errors.image }}</small>
       </div>
 
       <div class="image-preview" *ngIf="selectedFile || product.imageUri">
