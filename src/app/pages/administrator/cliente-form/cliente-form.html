@@ -6,21 +6,23 @@
 
     <div class="form-scroll">
 
-      <div class="input-group" [class.error]="errors.identificationType">
+      <div class="input-group" [class.error]="errors.identificationType" [class.readonly]="!!cliente.clientId">
         <label>Tipo de ID</label>
         <select 
           [(ngModel)]="cliente.identificationType"
           (change)="validateField('identificationType')"
+          [disabled]="!!cliente.clientId"
         >
           <option value="">-- Seleccione --</option>
           <option value="CEDULA">Cédula</option>
           <option value="PASAPORTE">Pasaporte</option>
         </select>
-        <small class="error-text">{{ errors.identificationType }}</small>
+        <small class="error-text" *ngIf="!cliente.clientId">{{ errors.identificationType }}</small>
+        <small class="help-text" *ngIf="!!cliente.clientId && !errors.identificationType">El tipo de identificación no se puede modificar</small>
       </div>
 
-      <div class="input-group" [class.error]="errors.identificationNumber">
-        <label>Número de ID</label>
+      <div class="input-group" [class.error]="errors.identificationNumber" [class.readonly]="!!cliente.clientId">
+        <label>Cédula / Pasaporte</label>
         <input 
           type="text" 
           [(ngModel)]="cliente.identificationNumber" 
@@ -28,8 +30,11 @@
           (blur)="validateField('identificationNumber')"
           [placeholder]="cliente.identificationType === 'CEDULA' ? '10 dígitos (ej: 1234567890)' : cliente.identificationType === 'PASAPORTE' ? '6-9 caracteres (ej: AB123456)' : 'Número de identificación'"
           [maxlength]="cliente.identificationType === 'CEDULA' ? '10' : '9'"
+          [disabled]="!!cliente.clientId"
+          [readonly]="!!cliente.clientId"
         />
-        <small class="error-text">{{ errors.identificationNumber }}</small>
+        <small class="error-text" *ngIf="!cliente.clientId">{{ errors.identificationNumber }}</small>
+        <small class="help-text" *ngIf="!!cliente.clientId && !errors.identificationNumber">El número de identificación no se puede modificar</small>
       </div>
 
       <div class="input-group" [class.error]="errors.firstName">
