@@ -1,0 +1,19 @@
+[build]
+  publish = "dist/pos-frontend/browser"
+  command = "ng build --configuration=production"
+
+# Disable automatic Angular plugin detection
+[[plugins]]
+  package = "@netlify/angular-runtime"
+  [plugins.inputs]
+    disable = false
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "10"
+
+# Redirects for Angular SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
