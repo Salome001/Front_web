@@ -117,6 +117,11 @@ userRole: string[] = [];
   validateField(fieldName: string): void {
     switch(fieldName) {
       case 'identificationType':
+        // No validar tipo si es edición
+        if (this.cliente.clientId) {
+          this.errors.identificationType = '';
+          break;
+        }
         if (!this.cliente.identificationType) {
           this.errors.identificationType = 'Seleccione un tipo de identificación';
         } else {
@@ -129,6 +134,11 @@ userRole: string[] = [];
         break;
         
       case 'identificationNumber':
+        // No validar número si es edición
+        if (this.cliente.clientId) {
+          this.errors.identificationNumber = '';
+          break;
+        }
         if (!this.cliente.identificationNumber?.trim()) {
           this.errors.identificationNumber = 'El número de identificación es obligatorio';
         } else if (this.cliente.identificationType === 'CEDULA') {
@@ -239,6 +249,11 @@ userRole: string[] = [];
   }
 
   soloIdentificacion(event: any): void {
+    // No permitir edición de identificación si es un cliente existente
+    if (this.cliente.clientId) {
+      return;
+    }
+    
     if (this.cliente.identificationType === 'CEDULA') {
       // Solo números para cédula
       event.target.value = event.target.value.replace(/[^0-9]/g, '').substring(0, 10);

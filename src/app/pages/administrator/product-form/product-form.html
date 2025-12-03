@@ -7,7 +7,7 @@
 
     <div class="form-scroll">
 
-      <div class="input-group" [class.error]="errors.code">
+      <div class="input-group" [class.error]="errors.code" [class.validating]="isValidatingCode" [class.readonly]="!!product.productId">
         <label for="productCode">Código</label>
         <input 
           id="productCode" 
@@ -17,8 +17,13 @@
           (blur)="validateField('code')"
           placeholder="Código del producto (ej: PROD001)"
           maxlength="10"
+          [disabled]="isValidatingCode || !!product.productId"
+          [readonly]="!!product.productId"
         />
-        <small class="error-text">{{ errors.code }}</small>
+        <small class="validating-text" *ngIf="isValidatingCode">Verificando código...</small>
+        <small class="error-text" *ngIf="!isValidatingCode && errors.code">{{ errors.code }}</small>
+        <small class="help-text" *ngIf="!isValidatingCode && !errors.code && !product.productId">Código único para identificar el producto</small>
+        <small class="help-text" *ngIf="!!product.productId && !errors.code">El código no se puede modificar en productos existentes</small>
       </div>
 
       <div class="input-group" [class.error]="errors.name">
@@ -77,9 +82,19 @@
         <small class="error-text">{{ errors.stock }}</small>
       </div>
 
-      <div class="checkbox-group">
-        <input id="productActive" type="checkbox" [(ngModel)]="product.isActive" />
-        <label for="productActive">Activo</label>
+      <div class="checkbox-group" [class.restore-mode]="data && !data.isActive && product.isActive">
+        <input 
+          id="productActive" 
+          type="checkbox" 
+          [(ngModel)]="product.isActive"
+          [title]="getActiveCheckboxTitle()"
+        />
+        <label for="productActive">
+          {{ getActiveCheckboxLabel() }}
+        </label>
+        <small class="help-text" *ngIf="data && !data.isActive && product.isActive">
+          ⚠️ Esto activará el producto 
+        </small>
       </div>
 
       <div class="input-group" [class.error]="errors.image">
@@ -103,7 +118,7 @@
     <hr />
 
     <div class="buttons">
-      <button   *ngIf="userRole.includes('Administrator')" class="btn primary" (click)="save()">{{ product.productId ? 'Actualizar' : 'Guardar' }}</button>
+      <button   *ngIf="userRole.includes('Administrator')" class="btn primary" (click)="save()">{{ getSaveButtonText() }}</button>
       <button class="btn warn" (click)="close()">Cancelar</button>
     </div>
 

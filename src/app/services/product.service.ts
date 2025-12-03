@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { ProductDto } from '../models/product.dto';
 import { environment } from '../environments/environments';
 
@@ -53,12 +53,54 @@ export class ProductService {
 
   // Actualizar producto con FormData
   update(id: number, formData: FormData): Observable<any> {
-    console.log('Actualizando producto con FormData:', formData);
-    return this.http.put(`${this.url}/${id}`, formData, { headers: this.getFormDataHeaders() });
+    const url = `${this.url}/${id}`;
+    const headers = this.getFormDataHeaders();
+    
+    console.log('=== UPDATE PRODUCT DEBUG ===');
+    console.log('URL:', url);
+    console.log('Product ID:', id);
+    console.log('Headers:', headers);
+    
+    // Log FormData contents
+    console.log('FormData contents:');
+    formData.forEach((value, key) => {
+      if (value instanceof File) {
+        console.log(`${key}: [File] ${value.name} (${value.size} bytes, ${value.type})`);
+      } else {
+        console.log(`${key}: ${value}`);
+      }
+    });
+    console.log('=== END DEBUG ===');
+    
+    return this.http.put(url, formData, { headers }).pipe(
+      tap({
+        next: (response) => console.log('Respuesta del servidor (UPDATE):', response),
+        error: (error) => console.error('Error del servidor (UPDATE):', error)
+      })
+    );
   }
 
   // Eliminar producto
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`, { headers: this.getAuthHeaders() });
+  }
+
+  // Restaurar producto (cambiar IsActive a true)
+  restore(id: number): Observable<any> {
+    const url = `${this.url}/${id}/restore`;
+    const headers = this.getAuthHeaders();
+    
+    console.log('=== RESTORE PRODUCT DEBUG ===');
+    console.log('URL:', url);
+    console.log('Product ID:', id);
+    console.log('Headers:', headers);
+    console.log('=== END DEBUG ===');
+    
+    return this.http.post(url, {}, { headers }).pipe(
+      tap({
+        next: (response: any) => console.log('Respuesta del servidor (RESTORE):', response),
+        error: (error: any) => console.error('Error del servidor (RESTORE):', error)
+      })
+    );
   }
 }

@@ -89,6 +89,29 @@
   padding: 10px;
 }
 
+.input-group.readonly input,
+.input-group.readonly select {
+  background: rgba(200, 200, 200, 0.1);
+  border: 1px solid #666;
+  cursor: not-allowed;
+  color: #bbb;
+}
+
+.input-group.readonly input:focus,
+.input-group.readonly select:focus {
+  background: rgba(200, 200, 200, 0.1);
+  border: 1px solid #666;
+  box-shadow: none;
+}
+
+.input-group small.help-text {
+  color: #b0b0b0;
+  font-size: 11px;
+  margin-top: 2px;
+  font-style: italic;
+  display: block;
+}
+
 hr {
   border: none;
   height: 1px;
