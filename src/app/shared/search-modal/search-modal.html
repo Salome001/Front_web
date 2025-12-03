@@ -1,19 +1,29 @@
-<div class="search-modal-wrapper">
-  <div class="search-modal-container">
+<div class="modal fade show" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="false">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="searchModalLabel">Buscar {{ data.entity }}</h5>
+        <button type="button" class="close" (click)="cancel()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <div class="form-group mb-3">
+          <input
+            type="text"
+            class="form-control search-input"
+            placeholder="Buscar..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange()"
+            autofocus
+          />
+        </div>
 
-    <div class="top-buttons">
-      <input
-        type="text"
-        placeholder="Buscar..."
-        [(ngModel)]="searchTerm"
-        (input)="onSearchChange()"
-      />
-      <button (click)="cancel()">Cancelar</button>
-    </div>
-
-    <div class="table-scroll">
-
-      <table>
+        <div class="table-scroll">
+          <table class="table table-striped">
         <thead>
           <!-- Roles -->
           <tr *ngIf="data.entity === 'Roles'">
@@ -59,7 +69,7 @@
       </span>
     </td>
     <td>
-      <button (click)="selectItem(item)">Seleccionar</button>
+      <button class="btn btn-primary btn-sm" (click)="selectItem(item)">Seleccionar</button>
     </td>
   </tr>
 </ng-container>
@@ -135,7 +145,7 @@
     <td>{{ item.tax | currency }}</td>
     <td>{{ item.total | currency }}</td>
     <td>
-      <button (click)="openInvoiceDetail(item)">Seleccionar</button>
+      <button class="btn btn-primary btn-sm" (click)="openInvoiceDetail(item)">Seleccionar</button>
     </td>
   </tr>
 </ng-container>
@@ -153,15 +163,15 @@
               <td>{{ item.email }}</td>
               <td>{{ item.address }}</td>
               <td>
-                <button (click)="selectItem(item)">Seleccionar</button>
+                <button class="btn btn-primary btn-sm" (click)="selectItem(item)">Seleccionar</button>
               </td>
             </tr>
           </ng-container>
 
         </tbody>
       </table>
-
+        </div>
+      </div>
     </div>
-
   </div>
 </div>

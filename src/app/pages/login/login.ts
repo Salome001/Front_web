@@ -5,6 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Alert } from '../../shared/alert/alert';
 import { environment } from '../../environments/environments';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -20,10 +21,11 @@ export class LoginComponent implements AfterViewInit {
   alertBg: string = '#e74c3c';
   alertColor: string = '#ffffff';
   showAlert: boolean = false;
+  showPassword: boolean = false;
 
   @ViewChild('bgVideo') bgVideo!: ElementRef<HTMLVideoElement>;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, private authService: AuthService) {}
 
   ngAfterViewInit() {
     const video = this.bgVideo.nativeElement;
@@ -52,14 +54,14 @@ export class LoginComponent implements AfterViewInit {
       next: (res) => {
         console.log('Respuesta del login:', res);
 
-        sessionStorage.setItem('token', res.token);
-
         const user = {
           email: res.user.email,
           userName: res.user.username,
           roles: res.user.roles
         };
-        sessionStorage.setItem('user', JSON.stringify(user));
+
+        // Usar AuthService para manejar login
+        this.authService.login(res.token, user);
 
         console.log('Usuario guardado en sessionStorage:', user);
 
@@ -79,5 +81,9 @@ export class LoginComponent implements AfterViewInit {
     this.errorMessage = message;
     this.showAlert = true;
     setTimeout(() => this.showAlert = false, 3000);
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
   }
 }

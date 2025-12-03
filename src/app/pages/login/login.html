@@ -31,7 +31,19 @@
 
       <div class="input-group">
         <label>Contraseña</label>
-        <input type="password" [(ngModel)]="password" name="password" placeholder="********" required>
+        <div class="password-input-wrapper">
+          <input 
+            [type]="showPassword ? 'text' : 'password'" 
+            [(ngModel)]="password" 
+            name="password" 
+            placeholder="********" 
+            required
+            class="password-input"
+          >
+          <button type="button" class="eye-button-side" (click)="togglePasswordVisibility()">
+            {{ showPassword ? '🙈' : '👁️' }}
+          </button>
+        </div>
       </div>
 
       <button type="submit">Ingresar</button>

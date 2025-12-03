@@ -66,9 +66,34 @@ mat-toolbar {
   height: 64px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   margin-left: 10px;
 
+  .toolbar-start {
+    display: flex;
+    align-items: center;
+  }
+
+  .toolbar-end {
+    display: flex;
+    align-items: center;
+  }
+
+  .logout-button {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    mat-icon {
+      color: #f3f4f6;
+    }
+  }
 }
 
 .menu-button {

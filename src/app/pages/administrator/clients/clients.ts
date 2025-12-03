@@ -38,24 +38,34 @@ export class ClientesComponent implements OnInit {
   ];
 
   dataSource = new MatTableDataSource<ClientDto>();
-userRole: string[] = [];
-  constructor(private clienteService: ClienteService, private dialog: MatDialog,   private userService: UserService) {}
+  userRole: string[] = [];
+  isLoadingRole = true;
 
-ngOnInit(): void {
-  this.loadUserRole();
-  this.loadClientes();
-}
+  constructor(private clienteService: ClienteService, private dialog: MatDialog, private userService: UserService) {}
 
-loadUserRole() {
-  this.userService.getCurrentUser().subscribe(user => {
-    this.userRole = user.roles;
+  ngOnInit(): void {
+    this.loadUserRole();
+    this.loadClientes();
+  }
 
-    if (!this.userRole.includes('Administrator')) {
-      // 👉 Eliminar la columna "actions" si el usuario NO es admin
-      this.displayedColumns = this.displayedColumns.filter(c => c !== 'actions');
-    }
-  });
-}
+  loadUserRole() {
+    this.userService.getCurrentUser().subscribe({
+      next: (user) => {
+        this.userRole = user?.roles || [];
+        this.isLoadingRole = false;
+
+        if (!this.userRole.includes('Administrator')) {
+          // 👉 Eliminar la columna "actions" si el usuario NO es admin
+          this.displayedColumns = this.displayedColumns.filter(c => c !== 'actions');
+        }
+      },
+      error: (err) => {
+        console.error('Error cargando roles del usuario:', err);
+        this.userRole = [];
+        this.isLoadingRole = false;
+      }
+    });
+  }
 
 loadClientes(): void {
   this.clienteService.getAll().subscribe({

@@ -9,54 +9,122 @@
 
       <div class="input-group" [class.error]="errors.identificationNumber">
         <label>Cédula</label>
-        <input [(ngModel)]="user.identificationNumber" maxlength="10" (input)="soloNumeros($event)" />
-        <small>{{ errors.identificationNumber }}</small>
+        <input 
+          [(ngModel)]="user.identificationNumber" 
+          maxlength="10" 
+          (input)="soloNumeros($event)" 
+          (blur)="validateField('identificationNumber')"
+          placeholder="Ingrese su cédula"
+        />
+        <small class="error-text">{{ errors.identificationNumber }}</small>
       </div>
 
       <div class="input-group" [class.error]="errors.email">
         <label>Correo</label>
-        <input [(ngModel)]="user.email" />
-        <small>{{ errors.email }}</small>
+        <input 
+          [(ngModel)]="user.email" 
+          type="email"
+          (blur)="validateField('email')"
+          (input)="validateField('email')"
+          placeholder="correo@ejemplo.com"
+        />
+        <small class="error-text">{{ errors.email }}</small>
       </div>
 
       <div class="input-group" [class.error]="errors.userName">
         <label>Usuario</label>
-        <input [(ngModel)]="user.userName" />
-        <small>{{ errors.userName }}</small>
+        <input 
+          [(ngModel)]="user.userName" 
+          (blur)="validateField('userName')"
+          (input)="validateField('userName')"
+          placeholder="Nombre de usuario"
+        />
+        <small class="error-text">{{ errors.userName }}</small>
       </div>
 
       <div class="input-group" *ngIf="!isEditMode" [class.error]="errors.password">
         <label>Contraseña</label>
-        <input type="password" [(ngModel)]="user.password" />
-        <small>{{ errors.password }}</small>
+        <div class="password-container">
+          <input 
+            [type]="showPassword ? 'text' : 'password'" 
+            [(ngModel)]="user.password"
+            (blur)="validateField('password')"
+            (input)="validateField('password')"
+            placeholder="Mínimo 8 caracteres"
+          />
+          <button type="button" class="eye-button" (click)="togglePasswordVisibility('password')">
+            {{ showPassword ? '🙈' : '👁️' }}
+          </button>
+        </div>
+        <small class="error-text">{{ errors.password }}</small>
+        <small class="help-text">Debe tener mínimo 8 caracteres, 1 mayúscula, 1 número y 1 carácter especial</small>
       </div>
 
-      <div class="input-group" *ngIf="isEditMode" [class.error]="errors.currentPassword">
+      <!-- Campos de contraseña ocultos en modo edición hasta que se implemente en el backend -->
+      <!-- <div class="input-group" *ngIf="isEditMode" [class.error]="errors.currentPassword">
         <label>Contraseña actual</label>
-        <input type="password" [(ngModel)]="user.currentPassword" />
-        <small>{{ errors.currentPassword }}</small>
-      </div>
+        <div class="password-container">
+          <input 
+            [type]="showCurrentPassword ? 'text' : 'password'" 
+            [(ngModel)]="user.currentPassword"
+            (blur)="validateField('currentPassword')"
+            placeholder="Contraseña actual"
+          />
+          <button type="button" class="eye-button" (click)="togglePasswordVisibility('currentPassword')">
+            {{ showCurrentPassword ? '🙈' : '👁️' }}
+          </button>
+        </div>
+        <small class="error-text">{{ errors.currentPassword }}</small>
+      </div> -->
 
-      <div class="input-group" *ngIf="isEditMode" [class.error]="errors.newPassword">
+      <!-- <div class="input-group" *ngIf="isEditMode" [class.error]="errors.newPassword">
         <label>Nueva contraseña</label>
-        <input type="password" [(ngModel)]="user.newPassword" />
-        <small>{{ errors.newPassword }}</small>
-      </div>
+        <div class="password-container">
+          <input 
+            [type]="showNewPassword ? 'text' : 'password'" 
+            [(ngModel)]="user.newPassword"
+            (blur)="validateField('newPassword')"
+            (input)="validateField('newPassword')"
+            placeholder="Nueva contraseña"
+          />
+          <button type="button" class="eye-button" (click)="togglePasswordVisibility('newPassword')">
+            {{ showNewPassword ? '🙈' : '👁️' }}
+          </button>
+        </div>
+        <small class="error-text">{{ errors.newPassword }}</small>
+        <small class="help-text">Debe tener mínimo 8 caracteres, 1 mayúscula, 1 número y 1 carácter especial</small>
+      </div> -->
 
-      <div class="input-group" *ngIf="isEditMode" [class.error]="errors.confirmNewPassword">
+      <!-- <div class="input-group" *ngIf="isEditMode" [class.error]="errors.confirmNewPassword">
         <label>Confirmar nueva contraseña</label>
-        <input type="password" [(ngModel)]="user.confirmNewPassword" />
-        <small>{{ errors.confirmNewPassword }}</small>
-      </div>
+        <div class="password-container">
+          <input 
+            [type]="showConfirmPassword ? 'text' : 'password'" 
+            [(ngModel)]="user.confirmNewPassword"
+            (blur)="validateField('confirmNewPassword')"
+            (input)="validateField('confirmNewPassword')"
+            placeholder="Confirmar nueva contraseña"
+          />
+          <button type="button" class="eye-button" (click)="togglePasswordVisibility('confirmPassword')">
+            {{ showConfirmPassword ? '🙈' : '👁️' }}
+          </button>
+        </div>
+        <small class="error-text">{{ errors.confirmNewPassword }}</small>
+      </div> -->
       <div class="input-group" [class.error]="errors.roles">
         <label>Rol</label>
-        <select [(ngModel)]="user.roles" class="combo-select">
-          <option value="">Seleccione un rol</option>
-          <option *ngFor="let r of rolesList" [value]="r.name">
-            {{ r.name }}
+        <select 
+          [(ngModel)]="user.roles" 
+          class="combo-select" 
+          [disabled]="loadingRoles"
+          (change)="validateField('roles')"
+        >
+          <option value="">{{ loadingRoles ? 'Cargando roles...' : 'Seleccione un rol' }}</option>
+          <option *ngFor="let r of rolesList" [value]="r.name" [title]="r.description">
+            {{ r.name }} - {{ r.description }}
           </option>
         </select>
-        <small>{{ errors.roles }}</small>
+        <small class="error-text">{{ errors.roles }}</small>
       </div>
 
       <div class="input-group" *ngIf="isEditMode">

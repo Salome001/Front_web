@@ -47,6 +47,82 @@ option {
   width: 8px;
 }
 
+// Estilos para contenedor de contraseña con icono
+.password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  
+  input {
+    width: 100%;
+    padding-right: 45px !important; // Espacio para el botón
+  }
+  
+  .eye-button {
+    position: absolute;
+    right: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #7c3aed;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(124, 58, 237, 0.1);
+      transform: scale(1.1);
+    }
+    
+    &:focus {
+      outline: 2px solid #7c3aed;
+      outline-offset: 2px;
+    }
+  }
+}
+
+// Estilos para mensajes de error y ayuda
+.error-text {
+  color: #ef4444 !important;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  display: block;
+  min-height: 16px; // Para evitar saltos de layout
+}
+
+.help-text {
+  color: #94a3b8 !important;
+  font-size: 0.75rem;
+  margin-top: 2px;
+  display: block;
+  opacity: 0.8;
+}
+
+// Mejorar estilos de input cuando hay error
+.input-group.error {
+  input, select {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+  }
+}
+
+// Estilos mejorados para inputs
+.input-group input, .input-group select {
+  transition: all 0.2s ease;
+  
+  &:focus {
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+    outline: none;
+  }
+  
+  &::placeholder {
+    color: #94a3b8;
+    font-size: 0.9rem;
+  }
+}
+
 .form-scroll::-webkit-scrollbar-thumb {
   background: rgba(255,255,255,0.15);
   border-radius: 10px;

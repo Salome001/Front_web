@@ -31,12 +31,12 @@ export class SearchModalComponent implements OnInit, AfterViewInit {
 
   constructor(
     private dialogRef: MatDialogRef<SearchModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { entity: string },
+    @Inject(MAT_DIALOG_DATA) public data: { entity: string, items?: any[] },
     private roleService: RoleService,
     private productService: ProductService,
     private clienteService: ClienteService,
     private usersService: UserService,
-  private invoiceService: InvoiceService, 
+    private invoiceService: InvoiceService, 
     private cd: ChangeDetectorRef,
     private dialog: MatDialog 
   ) {}
@@ -44,7 +44,15 @@ export class SearchModalComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    // CARGA DESPUÉS DEL PRIMER CICLO DE DETECCIÓN
+    // Si se pasaron items existentes, usarlos inmediatamente
+    if (this.data.items && this.data.items.length > 0) {
+      this.allItems = this.data.items;
+      this.filteredItems = [...this.allItems];
+      this.cd.detectChanges();
+      return;
+    }
+
+    // CARGA DESPUÉS DEL PRIMER CICLO DE DETECCIÓN solo si no hay items
     if (this.data.entity === 'Roles') {
       this.roleService.getAll().subscribe(res => {
         this.allItems = res;
@@ -59,8 +67,6 @@ export class SearchModalComponent implements OnInit, AfterViewInit {
         this.cd.detectChanges();
       });
     }
-    
-
     else if (this.data.entity === 'Client') {
       this.clienteService.getAll().subscribe(res => {
         this.allItems = res.items ?? [];
@@ -68,23 +74,20 @@ export class SearchModalComponent implements OnInit, AfterViewInit {
         this.cd.detectChanges();
       });
     }
-
     else if (this.data.entity === 'Usuarios') {
-  this.usersService.getAll().subscribe(res => {
-    this.allItems = res;
-    this.filteredItems = [...this.allItems];
-    this.cd.detectChanges();
-  });
-}
-else if (this.data.entity === 'Invoices') {
-  this.invoiceService.getAll(1, 100, '').subscribe(res => {
-    this.allItems = res.items ?? [];  // <-- Aquí usamos la propiedad 'items'
-    this.filteredItems = [...this.allItems];
-    this.cd.detectChanges();
-  });
-}
-
-
+      this.usersService.getAll().subscribe(res => {
+        this.allItems = res;
+        this.filteredItems = [...this.allItems];
+        this.cd.detectChanges();
+      });
+    }
+    else if (this.data.entity === 'Invoices') {
+      this.invoiceService.getAll(1, 100, '').subscribe(res => {
+        this.allItems = res.items ?? [];
+        this.filteredItems = [...this.allItems];
+        this.cd.detectChanges();
+      });
+    }
   }
 
   openInvoiceDetail(invoice: any) {

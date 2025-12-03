@@ -3,9 +3,25 @@
   <div class="actions">
     <button (click)="addUser()">+ Nuevo Usuario</button>
     <button (click)="openSearch()">🔍 Buscar</button>
+    <button (click)="forceReload()" [disabled]="isLoading">
+      {{ isLoading ? '⟳ Cargando...' : '🔄 Actualizar' }}
+    </button>
   </div>
 
-  <div class="table-wrapper">
+  <!-- Estado de carga -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner">⟳</div>
+    <p>Cargando usuarios...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="errorMessage && !isLoading" class="error-state">
+    <p>❌ {{ errorMessage }}</p>
+    <button (click)="loadUsers()">Reintentar</button>
+  </div>
+
+  <!-- Tabla de usuarios -->
+  <div class="table-wrapper" *ngIf="!isLoading && !errorMessage">
     <table>
       <thead>
         <tr>
@@ -38,7 +54,7 @@
           <td>••••••••</td>
         
           <td>
-          <span *ngIf="user.roles.length; else noRoles">
+            <span *ngIf="user.roles && user.roles.length; else noRoles">
               {{ user.roles.join(', ') }}
             </span>
             <ng-template #noRoles>Sin roles</ng-template>
@@ -48,6 +64,9 @@
             <button (click)="deleteUser(user.id)">🗑</button>
             <button *ngIf="user.isLocked" (click)="unlockUser(user.id)">🔓</button>
           </td>
+        </tr>
+        <tr *ngIf="users.length === 0">
+          <td colspan="8" class="no-data">No hay usuarios registrados</td>
         </tr>
       </tbody>
     </table>
